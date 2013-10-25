@@ -17,7 +17,9 @@
 
   <name>Sonar .NET ReSharper</name>
   <inceptionYear>2013</inceptionYear>
-  <organization>
+  <url>http://docs.codehaus.org/display/SONAR/.NET+ReSharper</url>
+
+    <organization>
     <name>John M. Wright</name>
     <url>http://www.wrightfully.com/</url>
   </organization>
@@ -35,19 +37,19 @@
   </modules>
 
   <scm>
-    <connection>scm:git:git@github.com:johnmwright/sonar-dotnet-resharper.git</connection>
-    <developerConnection>scm:git:git@github.com:johnmwright/sonar-dotnet-resharper.git</developerConnection>
-    <url>https://github.com/johnmwright/sonar-dotnet-resharper</url>
+    <connection>scm:git:git@github.com:SonarCommunity/sonar-dotnet-resharper.git</connection>
+    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-dotnet-resharper.git</developerConnection>
+    <url>https://github.com/SonarCommunity/sonar-dotnet-resharper</url>
     <tag>HEAD</tag>
   </scm>
   <issueManagement>
-    <system>GitHub</system>
-    <url>https://github.com/johnmwright/sonar-dotnet-resharper/issues</url>
+    <system>JIRA</system>
+    <url>https://jira.codehaus.org/browse/SONARPLUGINS/component/16153</url>
   </issueManagement>
-  <!--<ciManagement>-->
-    <!--<system>Cloudbees</system>-->
-    <!--<url>https://sonarplugins.ci.cloudbees.com/job/dotnet/</url>-->
-  <!--</ciManagement>-->
+  <ciManagement>
+    <system>Cloudbees</system>
+    <url>https://sonarplugins.ci.cloudbees.com/job/dotnet-resharper/</url>
+  </ciManagement>
 
   <properties>
     <license.owner>John M. Wright</license.owner>

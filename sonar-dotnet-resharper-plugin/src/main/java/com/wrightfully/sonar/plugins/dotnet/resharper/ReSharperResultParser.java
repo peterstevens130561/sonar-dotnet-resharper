@@ -63,7 +63,7 @@ public class ReSharperResultParser implements BatchExtension {
     private RuleFinder ruleFinder;
     private String repositoryKey;
 
-    private final String developerEmail = "https://github.com/johnmwright/sonar-dotnet-resharper/issues";
+    private final String issuesLink = "https://jira.codehaus.org/browse/SONARPLUGINS/component/16153";
     private final String missingIssueTypesRuleKey = "ReSharperInspectCode#Sonar.UnknownIssueType";
 
     /**
@@ -180,7 +180,7 @@ public class ReSharperResultParser implements BatchExtension {
 
             String logMessage = "The following IssueTypes are not known to the SonarQube ReSharper plugin.\n" +
                     "Add the following text to the 'ReSharper custom rules' property in the Settings UI to add local " +
-                    "support for these rules and submit them to " + developerEmail + " so that they can be included in " +
+                    "support for these rules and submit them to " + issuesLink + " so that they can be included in " +
                     "future releases.\n";
 
             for(String missingIssueType: _missingIssueTypes)
