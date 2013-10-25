@@ -107,6 +107,7 @@ public class ReSharperResultParserTest {
         when(vsProject.contains(any(File.class))).thenReturn(true);
         when(solution.getProjectFromSonarProject(any(Project.class))).thenReturn(vsProject);
         when(solution.getProject(any(File.class))).thenReturn(vsProject);
+        when(solution.getSolutionDir()).thenReturn(soltionFolder);
 
         ResourceHelper resourceHelper = mock(ResourceHelper.class);
         when(resourceHelper.isResourceInProject(any(Resource.class), any(Project.class))).thenReturn(true);
@@ -230,9 +231,9 @@ public class ReSharperResultParserTest {
         assertThat(capturedViolation.getLineId()).isNull();
 
         String expectedMessage = "The following IssueTypes are not known to the SonarQube ReSharper plugin.\n"+
-        "Add the following text to the 'ReSharper custom rules' property in the Settings UI to add local support for these rules and submit them to https://jira.codehaus.org/browse/SONARPLUGINS/component/16153 so that they can be included in future releases.\n"+
-        "<IssueType Id=\"UnknownRule1\" Category=\"Redundancies in Symbol Declarations\" Description=\"Type or type member is never used: Non-private accessibility\" Severity=\"SUGGESTION\" />\n"+
-        "<IssueType Id=\"UnknownRule2\" Category=\"Redundancies in Symbol Declarations\" Description=\"Type member is never accessed via base type: Non-private accessibility\" Severity=\"SUGGESTION\" />\n";
+                "Add the following text to the 'ReSharper custom rules' property in the Settings UI to add local support for these rules and submit them to https://jira.codehaus.org/browse/SONARPLUGINS/component/16153 so that they can be included in future releases.\n"+
+                "<IssueType Id=\"UnknownRule1\" Category=\"Redundancies in Symbol Declarations\" Description=\"Type or type member is never used: Non-private accessibility\" Severity=\"SUGGESTION\" />\n"+
+                "<IssueType Id=\"UnknownRule2\" Category=\"Redundancies in Symbol Declarations\" Description=\"Type member is never accessed via base type: Non-private accessibility\" Severity=\"SUGGESTION\" />\n";
 
         assertThat(capturedViolation.getMessage()).isEqualTo(expectedMessage);
 
@@ -264,7 +265,7 @@ public class ReSharperResultParserTest {
                 String ruleKey = query.getConfigKey();
 
                 if (ruleKey.equals("ReSharperInspectCode#RedundantUsingDirective")) {
-                        return _rudRule;
+                    return _rudRule;
                 } else if (ruleKey.equals("ReSharperInspectCode#ClassNeverInstantiated.Global")) {
                     return _cnigRule;
                 } else if (ruleKey.equals("ReSharperInspectCode#UnusedParameter.Local"))   {

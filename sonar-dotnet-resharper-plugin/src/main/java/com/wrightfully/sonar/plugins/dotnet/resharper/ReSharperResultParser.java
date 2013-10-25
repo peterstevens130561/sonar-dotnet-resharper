@@ -249,10 +249,10 @@ public class ReSharperResultParser implements BatchExtension {
 
     private void createViolation(SMInputCursor violationsCursor, Rule currentRule) throws XMLStreamException {
         String relativeFilePath = violationsCursor.getAttrValue("File");
-        File sourceFile = project.getFileSystem().resolvePath(relativeFilePath);
-        if (sourceFile == null) {
-            sourceFile = new File(relativeFilePath);
-        }
+
+        //Paths in the resharper results file are relative to the Solution file
+        LOG.debug("createViolation for relativePath: " + relativeFilePath);
+        File sourceFile = new File(vsSolution.getSolutionDir(), relativeFilePath);
 
         try{
             LOG.debug("searching for sourceFile " + sourceFile.getCanonicalFile().getPath() + " - Exists: " + sourceFile.exists());
