@@ -23,7 +23,6 @@ package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.ValidationMessages;
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperRule;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -61,7 +60,7 @@ public class ReSharperFileParser {
             else {
 
                 int count = nodes.getLength();
-                LOG.debug("Found " + count + " IssueType nodes" );
+                LOG.info("Found " + count + " IssueType nodes (rules)" );
 
                 // For each rule we extract the elements
                 for (int idxRule = 0; idxRule < count; idxRule++) {
@@ -83,8 +82,18 @@ public class ReSharperFileParser {
                     rule.setWikiLink(wikiLink);
 
                     String severity = ruleElement.getAttribute("Severity");
-                    rule.setSeverity(ReSharperRule.ReSharperSeverity.valueOf(severity));
+                    try {
+                        rule.setSeverity(ReSharperRule.ReSharperSeverity.valueOf(severity));
+                    } catch (Exception ex)
+                    {
+                        rule.setSeverity(ReSharperRule.ReSharperSeverity.WARNING);
 
+                        String logMsg = "exception while parsing resharper severity '" + severity +"': " + ex.getMessage();
+                        if (messages != null)
+                            messages.addErrorText(logMsg);
+                        else LOG.warn(logMsg);
+
+                    }
                     result.add(rule);
                 }
             }

@@ -19,42 +19,13 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper;
 
-import com.google.common.collect.Lists;
-import org.junit.Before;
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperRule;
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperRule.ReSharperSeverity;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.rules.*;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.rules.RuleFinder;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.api.rules.RuleQuery;
-import org.sonar.api.rules.Violation;
-import org.sonar.plugins.dotnet.api.DotNetResourceBridge;
-import org.sonar.plugins.dotnet.api.DotNetResourceBridges;
-import org.sonar.plugins.dotnet.api.microsoft.MicrosoftWindowsEnvironment;
-import org.sonar.plugins.dotnet.api.microsoft.VisualStudioProject;
-import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
-import org.sonar.plugins.dotnet.api.utils.ResourceHelper;
-import org.sonar.test.TestUtils;
-import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
-import java.io.File;
-import java.nio.charset.Charset;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.*;
-
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperRule;
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperRule.*;
-
 
 import static org.fest.assertions.Assertions.assertThat;
 
@@ -147,6 +118,7 @@ public class ReSharperRuleTest {
             ReSharperSeverity.WARNING => RulePriority.CRITICAL;
             ReSharperSeverity.SUGGESTION => RulePriority.MINOR;
             ReSharperSeverity.HINT => RulePriority.INFO ;
+            ReSharperSeverity.DO_NOT_SHOW => RulePriority.INFO ;
         */
 
 
@@ -165,6 +137,9 @@ public class ReSharperRuleTest {
 
 
         reSharperRule.setSeverity(ReSharperSeverity.HINT);
+        assertThat(reSharperRule.getSonarPriority()).isEqualTo(RulePriority.INFO);
+
+        reSharperRule.setSeverity(ReSharperSeverity.DO_NOT_SHOW);
         assertThat(reSharperRule.getSonarPriority()).isEqualTo(RulePriority.INFO);
     }
 

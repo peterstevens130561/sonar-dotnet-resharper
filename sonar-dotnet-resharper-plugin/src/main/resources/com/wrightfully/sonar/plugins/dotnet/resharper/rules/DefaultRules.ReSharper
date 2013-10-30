@@ -441,9 +441,12 @@
     <IssueType Id="StringLastIndexOfIsCultureSpecific.2" Category="Common Practices and Code Improvements" SubCategory="String.LastIndexOf is culture-specific" Description="String.LastIndexOf is culture-specific: String.LastIndexOf(string, int) is culture-specific" Severity="WARNING" />
     <IssueType Id="StringLastIndexOfIsCultureSpecific.3" Category="Common Practices and Code Improvements" SubCategory="String.LastIndexOf is culture-specific" Description="String.LastIndexOf is culture-specific: String.LastIndexOf(string, int) is culture-specific" Severity="WARNING" />
     <IssueType Id="StringStartsWithIsCultureSpecific" Category="Common Practices and Code Improvements" SubCategory="String.StartsWith is culture-specific" Description="String.StartsWith is culture-specific: String.StartsWith(string) is culture-specific" Severity="DO_NOT_SHOW" />
-    <IssueType Id="StructuralSearch" Category="Structural Search Highlightings" Description="Structural Search Hints" Severity="HINT" />
+  <!--
+     // see inspectcode /dumpIssuesTypes includes duplicate entries for "StructuralSearch":  http://youtrack.jetbrains.com/issue/RSRP-390380
+     <IssueType Id="StructuralSearch" Category="Structural Search Highlightings" Description="Structural Search Hints" Severity="HINT" />
     <IssueType Id="StructuralSearch" Category="Structural Search Highlightings" Description="Structural Search Suggestions" Severity="SUGGESTION" />
     <IssueType Id="StructuralSearch" Category="Structural Search Highlightings" Description="Structural Search Errors" Severity="ERROR" />
+    -->
     <IssueType Id="StructuralSearch" Category="Structural Search Highlightings" Description="Structural Search Warnings" Severity="WARNING" />
     <IssueType Id="SuggestBaseTypeForParameter" Category="Common Practices and Code Improvements" Description="Parameter can be declared with base type" Severity="HINT" />
     <IssueType Id="SuggestUseVarKeywordEverywhere" Category="Language Usage Opportunities" Description="Use 'var' keyword when possible" Severity="HINT" />

@@ -44,7 +44,7 @@ public class DefaultRulesTest {
 
     @Test
     public void testDefaultRulesContainsRules() throws Exception {
-        assertThat(_rules.size()).isGreaterThan(1);
+        assertThat(_rules.size()).isGreaterThanOrEqualTo(650);
     }
 
     @Test
