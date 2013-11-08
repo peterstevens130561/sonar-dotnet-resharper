@@ -30,7 +30,7 @@ import java.io.File;
 /**
  * Class that runs the ReSharper inspectcode program.
  */
-public class ReSharperRunner {
+public final class ReSharperRunner {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReSharperRunner.class);
 

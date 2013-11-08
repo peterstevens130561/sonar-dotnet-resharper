@@ -30,7 +30,7 @@ import java.io.File;
 /**
  * Class used to build the command line to run ReSharper inspectcoe.
  */
-public class ReSharperCommandBuilder {
+public final class ReSharperCommandBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReSharperCommandBuilder.class);
 

@@ -19,16 +19,14 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper;
 
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperFileParser;
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperRule;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleRepository;
-import org.sonar.api.rules.XMLRuleParser;
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperFileParser;
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperRule;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -47,8 +45,7 @@ public class ReSharperRuleRepository extends RuleRepository {
 
     private Settings settings;
 
-    public ReSharperRuleRepository(String repoKey, String languageKey, ServerFileSystem fileSystem, XMLRuleParser xmlRuleParser,
-                                   Settings settings) {
+    public ReSharperRuleRepository(String repoKey, String languageKey, Settings settings) {
         super(repoKey, languageKey);
         setName(ReSharperConstants.REPOSITORY_NAME);
         this.settings = settings;

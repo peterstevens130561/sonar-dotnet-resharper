@@ -20,14 +20,8 @@
 package com.wrightfully.sonar.plugins.dotnet.resharper;
 
 
-import org.sonar.api.ExtensionProvider;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.PropertyType;
-import org.sonar.api.ServerExtension;
+import org.sonar.api.*;
 import org.sonar.api.config.Settings;
-import org.sonar.api.platform.ServerFileSystem;
-import org.sonar.api.rules.XMLRuleParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,13 +38,9 @@ import java.util.List;
 })
 public class ReSharperRuleRepositoryProvider extends ExtensionProvider implements ServerExtension {
 
-    private ServerFileSystem fileSystem;
-    private XMLRuleParser xmlRuleParser;
     private Settings settings;
 
-    public ReSharperRuleRepositoryProvider(ServerFileSystem fileSystem, Settings settings) {
-        this.fileSystem = fileSystem;
-        this.xmlRuleParser = new XMLRuleParser();
+    public ReSharperRuleRepositoryProvider(Settings settings) {
         this.settings = settings;
     }
 
@@ -61,7 +51,7 @@ public class ReSharperRuleRepositoryProvider extends ExtensionProvider implement
         for (String languageKey : ReSharperConstants.SUPPORTED_LANGUAGES) {
             // every repository key should be "resharper-<language_key>"
             String repoKey = ReSharperConstants.REPOSITORY_KEY + "-" + languageKey;
-            extensions.add(new ReSharperRuleRepository(repoKey, languageKey, fileSystem, xmlRuleParser, settings));
+            extensions.add(new ReSharperRuleRepository(repoKey, languageKey, settings));
         }
 
         return extensions;

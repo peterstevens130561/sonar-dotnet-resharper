@@ -75,7 +75,6 @@ public class ReSharperResultParserTest {
 
         _resourcesBridge = mock(DotNetResourceBridge.class);
         when(_resourcesBridge.getLanguageKey()).thenReturn("cs");
-        DotNetResourceBridges bridges = new DotNetResourceBridges(new DotNetResourceBridge[] {_resourcesBridge});
 
         File resultFile = TestUtils.getResource("/solution/Example/resharper-results-example_sln.xml");
         final File soltionFolder = new File(resultFile.getParent());
@@ -112,7 +111,7 @@ public class ReSharperResultParserTest {
         ResourceHelper resourceHelper = mock(ResourceHelper.class);
         when(resourceHelper.isResourceInProject(any(Resource.class), any(Project.class))).thenReturn(true);
 
-        _parser = new ReSharperResultParser(env, _project, _context, newRuleFinder(), bridges, resourceHelper);
+        _parser = new ReSharperResultParser(env, _project, _context, newRuleFinder());
 
         _rudRule = Rule.create(ReSharperConstants.REPOSITORY_KEY, "RedundantUsingDirective", "RedundantUsingDirective")
                 .setConfigKey("ReSharperInspectCode#RedundantUsingDirective");
