@@ -120,7 +120,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
             reportFiles = FileFinder.findFiles(vsSolution, vsProject, reportPath);
 
             if (reportFiles.size() == 0){
-                new SonarException("No ReSharper reports found. Make sure to set " + ReSharperConstants.REPORT_PATH_KEY);
+                throw new SonarException("No ReSharper reports found. Make sure to set " + ReSharperConstants.REPORT_PATH_KEY);
             }
 
             LOG.info("Reusing ReSharper reports: " + Joiner.on("; ").join(reportFiles));
