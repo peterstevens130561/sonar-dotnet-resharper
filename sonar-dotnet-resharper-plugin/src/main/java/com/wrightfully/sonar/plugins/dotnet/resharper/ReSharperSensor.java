@@ -110,7 +110,9 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
 
         final Collection<File> reportFiles;
         String reportDefaultPath = getMicrosoftWindowsEnvironment().getWorkingDirectory() + "/" + ReSharperConstants.REPORT_FILENAME;
-        if (MODE_REUSE_REPORT.equalsIgnoreCase(getExecutionMode())) {
+        String executionMode = getExecutionMode();
+
+        if (MODE_REUSE_REPORT.equalsIgnoreCase(executionMode)) {
             String reportPath = configuration.getString(ReSharperConstants.REPORT_PATH_KEY);
             if (StringUtils.isEmpty(reportPath)) {
                 reportPath = reportDefaultPath;
@@ -124,7 +126,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
             }
 
             LOG.info("Reusing ReSharper reports: " + Joiner.on("; ").join(reportFiles));
-        } else {
+        } else if (executionMode.equals("")) {
             try {
                 ReSharperRunner runner = ReSharperRunner.create(configuration.getString(ReSharperConstants.INSTALL_DIR_KEY));
                 launchInspectCode(project, runner);
@@ -133,6 +135,8 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
             }
             File projectDir = fileSystem.getBasedir();
             reportFiles = Collections.singleton(new File(projectDir, reportDefaultPath));
+        }  else {
+           throw new SonarException("Run Mode not supported: " + executionMode);
         }
 
         // and analyze results

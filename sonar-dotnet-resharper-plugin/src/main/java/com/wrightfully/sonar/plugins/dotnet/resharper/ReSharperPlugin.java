@@ -33,7 +33,7 @@ import java.util.List;
  * Main class of the ReSharper plugin.
  */
 @Properties({
-        @Property(key = ReSharperConstants.MODE, defaultValue = AbstractDotNetSensor.MODE_SKIP, name = "ReSharper activation mode",
+        @Property(key = ReSharperConstants.MODE, defaultValue = "", name = "ReSharper activation mode",
                 description = "Possible values : empty (means active), 'skip' and 'reuseReport'.", global = false, project = false,
                 type = PropertyType.SINGLE_SELECT_LIST, options = {AbstractDotNetSensor.MODE_SKIP, AbstractDotNetSensor.MODE_REUSE_REPORT}),
         @Property(key = ReSharperConstants.REPORT_PATH_KEY, defaultValue = "", name = "Name of the ReSharper report file",
