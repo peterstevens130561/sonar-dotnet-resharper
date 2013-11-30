@@ -35,7 +35,7 @@ public final class ReSharperConstants {
     // ----------- Plugin Configuration Properties ----------- //
     public static final String MODE = "sonar.resharper.mode";
 
-    public static final String REPORT_PATH_KEY = "sonar.resharper.report.path";
+    public static final String REPORTS_PATH_KEY = "sonar.resharper.reports.path";
     public static final String REPORT_FILENAME = "resharper-report.xml";
 
     public static final String INSTALL_DIR_KEY = "sonar.resharper.installDirectory";

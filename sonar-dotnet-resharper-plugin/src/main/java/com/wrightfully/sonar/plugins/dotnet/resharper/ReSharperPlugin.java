@@ -25,6 +25,7 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileI
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfileCSharp;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfileVbNet;
 import org.sonar.plugins.dotnet.api.sensor.AbstractDotNetSensor;
+import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +37,8 @@ import java.util.List;
         @Property(key = ReSharperConstants.MODE, defaultValue = "", name = "ReSharper activation mode",
                 description = "Possible values : empty (means active), 'skip' and 'reuseReport'.", global = false, project = false,
                 type = PropertyType.SINGLE_SELECT_LIST, options = {AbstractDotNetSensor.MODE_SKIP, AbstractDotNetSensor.MODE_REUSE_REPORT}),
-        @Property(key = ReSharperConstants.REPORT_PATH_KEY, defaultValue = "", name = "Name of the ReSharper report file",
-                description = "Name of the ReSharper report file used when reuse report mode is activated. "
+        @Property(key = ReSharperConstants.REPORTS_PATH_KEY, defaultValue = "", name = "Path of the ReSharper report file(s)",
+                description = "Path of the ReSharper report file(s) used when reuse report mode is activated. "
                         + "This can be an absolute path, or a path relative to each project base directory.", global = false, project = false),
         @Property(key = ReSharperConstants.INSTALL_DIR_KEY, defaultValue = ReSharperConstants.INSTALL_DIR_DEFVALUE, name = "ReSharper Command Line Tools install directory",
                 description = "Absolute path of the ReSharper Command Line Tools installation folder.", global = true, project = false),
@@ -52,6 +53,9 @@ public class ReSharperPlugin extends SonarPlugin {
      */
     public List<Class<? extends Extension>> getExtensions() {
         List<Class<? extends Extension>> list = new ArrayList<Class<? extends Extension>>();
+
+        list.add(ReSharperConfiguration.class);
+
 
         // sensors
         list.add(ReSharperSensor.CSharpRegularReSharperSensor.class);

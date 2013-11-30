@@ -33,6 +33,7 @@ import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperCommandBuilder;
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperRunner;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileExporter;
+import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 import org.sonar.plugins.dotnet.api.DotNetConfiguration;
 import org.sonar.plugins.dotnet.api.DotNetConstants;
 import org.sonar.plugins.dotnet.api.microsoft.MicrosoftWindowsEnvironment;
@@ -59,7 +60,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
     @DependsUpon(DotNetConstants.CORE_PLUGIN_EXECUTED)
     public static class CSharpRegularReSharperSensor extends ReSharperSensor {
         public CSharpRegularReSharperSensor(ProjectFileSystem fileSystem, RulesProfile rulesProfile, ReSharperProfileExporter.CSharpRegularReSharperProfileExporter profileExporter,
-                                            ReSharperResultParser resharperResultParser, DotNetConfiguration configuration, MicrosoftWindowsEnvironment microsoftWindowsEnvironment) {
+                                            ReSharperResultParser resharperResultParser, ReSharperConfiguration configuration, MicrosoftWindowsEnvironment microsoftWindowsEnvironment) {
             super(fileSystem, rulesProfile, profileExporter, resharperResultParser, configuration, microsoftWindowsEnvironment);
         }
 
@@ -75,7 +76,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
     @DependsUpon(DotNetConstants.CORE_PLUGIN_EXECUTED)
     public static class VbNetRegularReSharperSensor extends ReSharperSensor {
         public VbNetRegularReSharperSensor(ProjectFileSystem fileSystem, RulesProfile rulesProfile, ReSharperProfileExporter.VbNetRegularReSharperProfileExporter profileExporter,
-                                           ReSharperResultParser resharperResultParser, DotNetConfiguration configuration, MicrosoftWindowsEnvironment microsoftWindowsEnvironment) {
+                                           ReSharperResultParser resharperResultParser, ReSharperConfiguration configuration, MicrosoftWindowsEnvironment microsoftWindowsEnvironment) {
             super(fileSystem, rulesProfile, profileExporter, resharperResultParser, configuration, microsoftWindowsEnvironment);
         }
 
@@ -94,8 +95,8 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
      *
      */
     protected ReSharperSensor(ProjectFileSystem fileSystem, RulesProfile rulesProfile,   ReSharperProfileExporter profileExporter,
-                              ReSharperResultParser resharperResultParser, DotNetConfiguration configuration, MicrosoftWindowsEnvironment microsoftWindowsEnvironment) {
-        super(configuration, rulesProfile, profileExporter, microsoftWindowsEnvironment, "ReSharper", configuration.getString(ReSharperConstants.MODE));
+                              ReSharperResultParser resharperResultParser, ReSharperConfiguration configuration, MicrosoftWindowsEnvironment microsoftWindowsEnvironment) {
+        super(new DotNetConfiguration(configuration.getSettings()), rulesProfile, profileExporter, microsoftWindowsEnvironment, "ReSharper", configuration.getString(ReSharperConstants.MODE));
         this.fileSystem = fileSystem;
         this.rulesProfile = rulesProfile;
 
@@ -113,7 +114,8 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
         String executionMode = getExecutionMode();
 
         if (MODE_REUSE_REPORT.equalsIgnoreCase(executionMode)) {
-            String reportPath = configuration.getString(ReSharperConstants.REPORT_PATH_KEY);
+            String reportPath = configuration.getString(ReSharperConstants.REPORTS_PATH_KEY);
+
             if (StringUtils.isEmpty(reportPath)) {
                 reportPath = reportDefaultPath;
             }
@@ -122,7 +124,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
             reportFiles = FileFinder.findFiles(vsSolution, vsProject, reportPath);
 
             if (reportFiles.size() == 0){
-                throw new SonarException("No ReSharper reports found. Make sure to set " + ReSharperConstants.REPORT_PATH_KEY);
+                throw new SonarException("No ReSharper reports found. Make sure to set " + ReSharperConstants.REPORTS_PATH_KEY);
             }
 
             LOG.info("Reusing ReSharper reports: " + Joiner.on("; ").join(reportFiles));
