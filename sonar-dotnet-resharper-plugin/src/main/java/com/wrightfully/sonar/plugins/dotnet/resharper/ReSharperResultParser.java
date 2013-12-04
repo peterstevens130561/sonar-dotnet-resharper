@@ -285,7 +285,7 @@ public class ReSharperResultParser implements BatchExtension {
     }
 
 
-    private Violation createViolationAgainstFile(SMInputCursor violationsCursor, Rule currentRule, File sourceFile) throws XMLStreamException {
+    private Violation createViolationAgainstFile(SMInputCursor violationsCursor, Rule currentRule, File sourceFile) throws Exception {
         final org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.fromIOFile(sourceFile, project);
 
         Violation violation = Violation.create(currentRule, sonarFile);
@@ -298,11 +298,12 @@ public class ReSharperResultParser implements BatchExtension {
 
             if (!vsProject.contains(sourceFile))
             {
-                message += " (for file " + sourceFile.getName();
+                message += " (for file " + sonarFile.getName();
                 if (lineNumber != null) {
                     message += " line " + lineNumber;
                 }
                 message +=  ")";
+
             }
         }
 
