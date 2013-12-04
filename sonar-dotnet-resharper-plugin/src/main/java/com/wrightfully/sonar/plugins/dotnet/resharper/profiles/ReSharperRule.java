@@ -264,7 +264,7 @@ public class ReSharperRule {
 
         if (!StringUtils.isBlank(wikiLink))
         {
-            desc += "<br />"+wikiLink;
+            desc += "<br /><a href='"+wikiLink+"'>" + wikiLink + "</a>";
         }
 
         if (!StringUtils.isBlank(category))

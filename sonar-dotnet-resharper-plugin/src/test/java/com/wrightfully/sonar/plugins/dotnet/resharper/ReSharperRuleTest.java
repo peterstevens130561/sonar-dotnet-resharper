@@ -48,7 +48,7 @@ public class ReSharperRuleTest {
         assertThat(sonarRule.getName()).isEqualTo("MyId");
         assertThat(sonarRule.getSeverity()).isEqualTo(RulePriority.INFO);
         assertThat(sonarRule.getConfigKey()).isEqualTo("ReSharperInspectCode#MyId");
-        assertThat(sonarRule.getDescription()).isEqualTo("A rather boring description<br />http://foo.bar/baz/bin<br />(Category: This is my category)");
+        assertThat(sonarRule.getDescription()).isEqualTo("A rather boring description<br /><a href='http://foo.bar/baz/bin'>http://foo.bar/baz/bin</a><br />(Category: This is my category)");
     }
 
 
@@ -68,7 +68,7 @@ public class ReSharperRuleTest {
         assertThat(sonarRule.getName()).isEqualTo("MyId");
         assertThat(sonarRule.getSeverity()).isEqualTo(RulePriority.INFO);
         assertThat(sonarRule.getConfigKey()).isEqualTo("ReSharperInspectCode#MyId");
-        assertThat(sonarRule.getDescription()).isEqualTo("A rather boring description<br />http://foo.bar/baz/bin");
+        assertThat(sonarRule.getDescription()).isEqualTo("A rather boring description<br /><a href='http://foo.bar/baz/bin'>http://foo.bar/baz/bin</a>");
     }
 
     @Test
@@ -182,7 +182,7 @@ public class ReSharperRuleTest {
     public void testReSharperRuleCreateFromActiveRule() throws Exception {
 
         Rule sonarRule = Rule.create(ReSharperConstants.REPOSITORY_KEY+"-cs", "MyId", "MyId")
-                .setDescription("A rather boring description<br />http://foo.bar/baz/bin<br />(Category: This is my category)")
+                .setDescription("A rather boring description<br /><a href='http://foo.bar/baz/bin'>http://foo.bar/baz/bin</a><br />(Category: This is my category)")
                 .setConfigKey("ReSharperInspectCode#MyId")
                 .setSeverity(RulePriority.INFO);
 
@@ -193,7 +193,7 @@ public class ReSharperRuleTest {
         ReSharperRule reSharperRule = ReSharperRule.createFromActiveRule(activeRule);
         assertThat(reSharperRule.getId()).isEqualTo("MyId");
         assertThat(reSharperRule.isEnabled()).isEqualTo(true);
-        assertThat(reSharperRule.getDescription()).isEqualTo("A rather boring description<br />http://foo.bar/baz/bin<br />(Category: This is my category)");
+        assertThat(reSharperRule.getDescription()).isEqualTo("A rather boring description<br /><a href='http://foo.bar/baz/bin'>http://foo.bar/baz/bin</a><br />(Category: This is my category)");
         assertThat(reSharperRule.getSeverity()).isEqualTo(ReSharperSeverity.HINT);
 
     }
