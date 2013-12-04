@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.wrightfully.sonar-plugins.dotnet.resharper</groupId>
         <artifactId>sonar-dotnet-resharper</artifactId>
-        <version>0.1-SNAPSHOT</version>
+        <version>1.0-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
@@ -14,7 +14,7 @@
   <packaging>sonar-plugin</packaging>
 
   <name>Sonar .NET Plugin :: ReSharper</name>
-  <description>Plugin that runs ReSharper command-line code analyses to check .NET assemblies against rule violations.</description>
+  <description>Plugin to utilize JetBrain's ReSharper command-line code analyzer to check .NET source code against rule violations.</description>
 
   <properties>
     <license.owner>John M. Wright</license.owner>

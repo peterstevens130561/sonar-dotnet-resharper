@@ -13,13 +13,13 @@
   <groupId>com.wrightfully.sonar-plugins.dotnet.resharper</groupId>
   <artifactId>sonar-dotnet-resharper</artifactId>
   <packaging>pom</packaging>
-  <version>0.1-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
 
   <name>Sonar .NET ReSharper</name>
   <inceptionYear>2013</inceptionYear>
   <url>http://docs.codehaus.org/display/SONAR/.NET+ReSharper</url>
 
-    <organization>
+  <organization>
     <name>John M. Wright</name>
     <url>http://www.wrightfully.com/</url>
   </organization>
