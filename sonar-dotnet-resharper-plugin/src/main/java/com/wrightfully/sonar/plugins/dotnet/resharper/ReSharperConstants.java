@@ -46,4 +46,5 @@ public final class ReSharperConstants {
 
     public static final String CUSTOM_RULES_PROP_KEY = "sonar.resharper.customRules.definition";
 
+    public static final String INCLUDE_ALL_FILES = "sonar.resharper.includeAllFiles";
 }

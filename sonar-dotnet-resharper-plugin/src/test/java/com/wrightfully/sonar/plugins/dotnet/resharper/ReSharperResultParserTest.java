@@ -59,6 +59,8 @@ public class ReSharperResultParserTest {
     private DotNetResourceBridge _resourcesBridge;
     private ReSharperResultParser _parser;
     private Project _project;
+    VisualStudioProject _vsProject;
+    MicrosoftWindowsEnvironment _env;
 
     private Rule _rudRule;
     private Rule _cnigRule;
@@ -97,21 +99,19 @@ public class ReSharperResultParserTest {
             }
         });
 
-        MicrosoftWindowsEnvironment env = mock(MicrosoftWindowsEnvironment.class);
-        VisualStudioProject vsProject = mock(VisualStudioProject.class);
+        _env = mock(MicrosoftWindowsEnvironment.class);
+        _vsProject = mock(VisualStudioProject.class);
         VisualStudioSolution solution = mock(VisualStudioSolution.class);
 
-        when(env.getCurrentSolution()).thenReturn(solution);
-        when(vsProject.getName()).thenReturn("Example.Application");
-        when(vsProject.contains(any(File.class))).thenReturn(true);
-        when(solution.getProjectFromSonarProject(any(Project.class))).thenReturn(vsProject);
-        when(solution.getProject(any(File.class))).thenReturn(vsProject);
+        when(_env.getCurrentSolution()).thenReturn(solution);
+        when(_vsProject.getName()).thenReturn("Example.Application");
+        when(_vsProject.contains(any(File.class))).thenReturn(true);
+        when(solution.getProjectFromSonarProject(any(Project.class))).thenReturn(_vsProject);
+        when(solution.getProject(any(File.class))).thenReturn(_vsProject);
         when(solution.getSolutionDir()).thenReturn(soltionFolder);
 
         ResourceHelper resourceHelper = mock(ResourceHelper.class);
         when(resourceHelper.isResourceInProject(any(Resource.class), any(Project.class))).thenReturn(true);
-
-        _parser = new ReSharperResultParser(env, _project, _context, newRuleFinder());
 
         _rudRule = Rule.create(ReSharperConstants.REPOSITORY_KEY, "RedundantUsingDirective", "RedundantUsingDirective")
                 .setConfigKey("ReSharperInspectCode#RedundantUsingDirective");
@@ -136,9 +136,23 @@ public class ReSharperResultParserTest {
 
     }
 
+    private void ConfigureState(boolean isSupported, boolean isExcluded, boolean propertyIncludeAllFiles) {
+
+        ReSharperConfiguration configuration = mock(ReSharperConfiguration.class);
+        when(configuration.getBoolean(ReSharperConstants.INCLUDE_ALL_FILES)).thenReturn(propertyIncludeAllFiles);
+
+        when(_context.isExcluded(any(Resource.class))).thenReturn(isExcluded);
+
+        when(_vsProject.contains(any(File.class))).thenReturn(isSupported);
+
+        _parser = new ReSharperResultParser(_env, _project, _context, newRuleFinder(), configuration);
+
+    }
 
     @Test
-    public void testParseFileReturnsAllIssues() throws Exception{
+    public void testParseFileReturnsAllIssues() throws Exception {
+
+        ConfigureState(true, false, true);
 
         ArgumentCaptor<Violation> violationArg = ArgumentCaptor.forClass(Violation.class);
         Violation capturedViolation = null;
@@ -206,8 +220,98 @@ public class ReSharperResultParserTest {
 
     }
 
+
     @Test
-    public void testParseFileWithUnknownRules() throws Exception{
+    public void testParseFileReturnsAllIssuesWhenPropertyTrueAndFilesNotSupported() throws Exception {
+
+        ConfigureState(false, false, true);
+
+        ArgumentCaptor<Violation> violationArg = ArgumentCaptor.forClass(Violation.class);
+        Violation capturedViolation = null;
+
+        File resultFile = TestUtils.getResource("/solution/Example/resharper-results-example_sln.xml");
+        _parser.parse(resultFile);
+
+        // Verify calls on context to save violations
+        verify(_context, times(13)).saveViolation(violationArg.capture());
+        List<Violation> capturedViolations = violationArg.getAllValues();
+
+
+//        <Issue TypeId="RedundantUsingDirective" File="Example.Application\Program.cs" Offset="910-943" Line="22" Message="Using directive is not required by the code and can be safely removed" />
+        capturedViolation = capturedViolations.get(0);
+        assertViolation(capturedViolation,  _rudRule,  "Program.cs", 22, "Using directive is not required by the code and can be safely removed" , true);
+
+
+//        <Issue TypeId="RedundantUsingDirective" File="Example.Application\Program.cs" Offset="945-963" Line="23" Message="Using directive is not required by the code and can be safely removed" />
+        capturedViolation = capturedViolations.get(1);
+        assertViolation(capturedViolation,  _rudRule,  "Program.cs", 23, "Using directive is not required by the code and can be safely removed", true );
+
+//        <Issue TypeId="RedundantUsingDirective" File="Example.Application\Program.cs" Offset="965-983" Line="24" Message="Using directive is not required by the code and can be safely removed" />
+        capturedViolation = capturedViolations.get(2);
+        assertViolation(capturedViolation,  _rudRule,  "Program.cs", 24, "Using directive is not required by the code and can be safely removed" , true);
+
+//        <Issue TypeId="ClassNeverInstantiated.Global" File="Example.Application\Program.cs" Offset="1050-1057" Line="29" Message="Class 'Program' is never instantiated" />
+        capturedViolation = capturedViolations.get(3);
+        assertViolation(capturedViolation,  _cnigRule,  "Program.cs", 29, "Class 'Program' is never instantiated", true );
+
+//        <Issue TypeId="UnusedParameter.Local" File="Example.Application\Program.cs" Offset="1094-1098" Line="31" Message="Parameter 'args' is never used" />
+        capturedViolation = capturedViolations.get(4);
+        assertViolation(capturedViolation,  _uplRule,  "Program.cs", 31, "Parameter 'args' is never used" , true);
+
+//        <Issue TypeId="SuggestUseVarKeywordEvident" File="Example.Application\Program.cs" Offset="1114-1122" Line="33" Message="Use implicitly typed local variable declaration" />
+        capturedViolation = capturedViolations.get(5);
+        assertViolation(capturedViolation,  _suvkeRule,  "Program.cs", 33, "Use implicitly typed local variable declaration" , true);
+
+//        <Issue TypeId="SuggestUseVarKeywordEvident" File="Example.Application\Program.cs" Offset="1152-1157" Line="34" Message="Use implicitly typed local variable declaration" />
+        capturedViolation = capturedViolations.get(6);
+        assertViolation(capturedViolation,  _suvkeRule,  "Program.cs", 34, "Use implicitly typed local variable declaration" , true);
+
+//        <Issue TypeId="SuggestUseVarKeywordEvident" File="Example.Application\Program.cs" Offset="1196-1201" Line="35" Message="Use implicitly typed local variable declaration" />
+        capturedViolation = capturedViolations.get(7);
+        assertViolation(capturedViolation,  _suvkeRule,  "Program.cs", 35, "Use implicitly typed local variable declaration", true );
+
+//        <Issue TypeId="SuggestUseVarKeywordEvident" File="Example.Application\Program.cs" Offset="1240-1245" Line="36" Message="Use implicitly typed local variable declaration" />
+        capturedViolation = capturedViolations.get(8);
+        assertViolation(capturedViolation,  _suvkeRule,  "Program.cs", 36, "Use implicitly typed local variable declaration", true );
+
+//        <Issue TypeId="SuggestUseVarKeywordEvident" File="Example.Application\Program.cs" Offset="1284-1289" Line="37" Message="Use implicitly typed local variable declaration" />
+        capturedViolation = capturedViolations.get(9);
+        assertViolation(capturedViolation,  _suvkeRule,  "Program.cs", 37, "Use implicitly typed local variable declaration", true );
+
+//        <Issue TypeId="SuggestUseVarKeywordEverywhere" File="Example.Application\Program.cs" Offset="1328-1334" Line="38" Message="Use implicitly typed local variable declaration" />
+        capturedViolation = capturedViolations.get(10);
+        assertViolation(capturedViolation,  _suvke2Rule,  "Program.cs", 38, "Use implicitly typed local variable declaration", true );
+
+//        <Issue TypeId="RedundantToStringCall" File="Example.Application\Program.cs" Offset="1533-1541" Line="42" Message="Redundant 'Object.ToString()' call" />
+        capturedViolation = capturedViolations.get(11);
+        assertViolation(capturedViolation,  _rtscRule,  "Program.cs", 42, "Redundant 'Object.ToString()' call", true );
+
+//        <Issue TypeId="RedundantUsingDirective" File="Example.Application\Properties\AssemblyInfo.cs" Offset="921-959" Line="22" Message="Using directive is not required by the code and can be safely removed" />
+        capturedViolation = capturedViolations.get(12);
+        assertViolation(capturedViolation,  _rudRule,  "AssemblyInfo.cs", 22, "Using directive is not required by the code and can be safely removed", true );
+
+    }
+
+
+    @Test
+    public void testParseFileReturnsNoIssuesWhenPropertyTrueAndFilesExcluded() throws Exception {
+
+        ConfigureState(true, true, true);
+
+        File resultFile = TestUtils.getResource("/solution/Example/resharper-results-example_sln.xml");
+        _parser.parse(resultFile);
+
+        // Verify calls on context to save violations
+        verify(_context, times(0)).saveViolation(any(Violation.class));
+
+    }
+
+
+
+    @Test
+    public void testParseFileWithUnknownRules() throws Exception {
+
+        ConfigureState(true, false, true);
 
         ArgumentCaptor<Violation> violationArg = ArgumentCaptor.forClass(Violation.class);
         Violation capturedViolation = null;
@@ -238,7 +342,12 @@ public class ReSharperResultParserTest {
 
     }
 
-    private void assertViolation(Violation violation, Rule expectedRule, String expectedResourceName, int expectedLineNumber, String expectedMessage )
+    private void assertViolation(Violation violation, Rule expectedRule, String expectedResourceName, int expectedLineNumber, String expectedMessage)
+    {
+        assertViolation(violation, expectedRule, expectedResourceName, expectedLineNumber, expectedMessage, false);
+    }
+
+    private void assertViolation(Violation violation, Rule expectedRule, String expectedResourceName, int expectedLineNumber, String expectedMessage, boolean includeFileNameAndLine )
     {
         assertThat(violation.getRule()).isEqualTo(expectedRule);
 
@@ -251,6 +360,12 @@ public class ReSharperResultParserTest {
             assertThat(resource.getName()).isEqualTo(expectedResourceName);
         }
         assertThat(violation.getLineId()).isEqualTo(expectedLineNumber);
+
+        if (includeFileNameAndLine)
+        {
+            expectedMessage += " (for file " + expectedResourceName + " line " + expectedLineNumber + ")";
+        }
+
         assertThat(violation.getMessage()).isEqualTo(expectedMessage);
     }
 

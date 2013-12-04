@@ -44,7 +44,10 @@ import java.util.List;
                 description = "Absolute path of the ReSharper Command Line Tools installation folder.", global = true, project = false),
         @Property(key = ReSharperConstants.TIMEOUT_MINUTES_KEY, defaultValue = ReSharperConstants.TIMEOUT_MINUTES_DEFVALUE + "",
                 name = "ReSharper program timeout", description = "Maximum number of minutes before the ReSharper program will be stopped.", global = true,
-                project = true, type = PropertyType.INTEGER)
+                project = true, type = PropertyType.INTEGER),
+        @Property(key = ReSharperConstants.INCLUDE_ALL_FILES, defaultValue = "true",
+                name = "ReSharper file inclusion mode", description = "Determines if violations are reported on any file (ignores filters and unsupported file types) or only those supported by the dotNet core plugin.", global = false,
+                project = false, type = PropertyType.BOOLEAN)
 })
 public class ReSharperPlugin extends SonarPlugin {
 

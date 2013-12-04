@@ -29,16 +29,15 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.BatchExtension;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
+import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
-import org.sonar.plugins.dotnet.api.DotNetResourceBridges;
 import org.sonar.plugins.dotnet.api.microsoft.MicrosoftWindowsEnvironment;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioProject;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
-import org.sonar.plugins.dotnet.api.utils.ResourceHelper;
 import org.sonar.plugins.dotnet.api.utils.StaxParserUtils;
 
 import javax.xml.stream.XMLStreamException;
@@ -64,6 +63,7 @@ public class ReSharperResultParser implements BatchExtension {
     private SensorContext context;
     private RuleFinder ruleFinder;
     private String repositoryKey;
+    private Boolean includeAllFiles;
 
     private final static String issuesLink = "https://jira.codehaus.org/browse/SONARPLUGINS/component/16153";
     private final static String missingIssueTypesRuleKey = "ReSharperInspectCode#Sonar.UnknownIssueType";
@@ -71,7 +71,7 @@ public class ReSharperResultParser implements BatchExtension {
     /**
      * Constructs a @link{ReSharperResultParser}.
      */
-    public ReSharperResultParser(MicrosoftWindowsEnvironment env, Project project, SensorContext context, RuleFinder ruleFinder) {
+    public ReSharperResultParser(MicrosoftWindowsEnvironment env, Project project, SensorContext context, RuleFinder ruleFinder, ReSharperConfiguration configuration) {
         super();
 
         this.vsSolution = env.getCurrentSolution();
@@ -89,6 +89,7 @@ public class ReSharperResultParser implements BatchExtension {
         String projLanguage =  project.getLanguageKey();
         repositoryKey = ReSharperConstants.REPOSITORY_KEY + "-" + projLanguage;
 
+        includeAllFiles = configuration.getBoolean(ReSharperConstants.INCLUDE_ALL_FILES);
     }
 
     /**
@@ -257,43 +258,73 @@ public class ReSharperResultParser implements BatchExtension {
         LOG.debug("createViolation for relativePath: " + relativeFilePath);
         File sourceFile = new File(vsSolution.getSolutionDir(), relativeFilePath);
 
+        final org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.fromIOFile(sourceFile, project);
+
         try{
             LOG.debug("searching for sourceFile " + sourceFile.getCanonicalFile().getPath() + " - Exists: " + sourceFile.exists());
-        }catch (Exception ex)
-        {
+        } catch (Exception ex) {
             LOG.warn("Exception: " + ex.getMessage());
         }
 
-        try {
-            final org.sonar.api.resources.File sonarFile;
-            sonarFile = org.sonar.api.resources.File.fromIOFile(sourceFile, project);
+        if (context.isExcluded(sonarFile)) {
+            LOG.debug("File is marked as excluded, so not reporting violation: {}", sonarFile.getName());
+        } else if (includeAllFiles || vsProject.contains(sourceFile)) {
+            try {
+                Violation violation = createViolationAgainstFile(violationsCursor, currentRule, sourceFile);
+                context.saveViolation(violation);
+            } catch (Exception ex){
+                LOG.warn("Violation could not be saved against file, associating to VS project instead: " + sourceFile.getPath());
 
-            Violation violation = Violation.create(currentRule, sonarFile);
-            String lineNumber = violationsCursor.getAttrValue("Line");
-            if (lineNumber != null) {
-                violation.setLineId(Integer.parseInt(lineNumber));
+                Violation violation = createViolationAgainstProject(violationsCursor, currentRule, sourceFile);
+                context.saveViolation(violation);
             }
-
-            String message = violationsCursor.getAttrValue("Message");
-            violation.setMessage(message.trim());
-            context.saveViolation(violation);
-        } catch (Exception ex){
-            LOG.warn("Violation could not be saved against file, associated file not referenced in VS project: " + sourceFile.getPath());
-            Violation violation = Violation.create(currentRule, project);
-
-            String lineNumber = violationsCursor.getAttrValue("Line");
-
-            String message = violationsCursor.getAttrValue("Message");
-
-            message += " (for file " + sourceFile.getPath();
-            if (lineNumber != null) {
-                message += " line " + lineNumber;
-            }
-            message +=  ")";
-
-            violation.setMessage(message.trim());
-            context.saveViolation(violation);
+        } else {
+            LOG.debug("Violation not being saved for unsupported file {}", sourceFile.getName());
         }
+
+    }
+
+
+    private Violation createViolationAgainstFile(SMInputCursor violationsCursor, Rule currentRule, File sourceFile) throws XMLStreamException {
+        final org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.fromIOFile(sourceFile, project);
+
+        Violation violation = Violation.create(currentRule, sonarFile);
+
+        String message = violationsCursor.getAttrValue("Message");
+
+        String lineNumber = violationsCursor.getAttrValue("Line");
+        if (lineNumber != null) {
+            violation.setLineId(Integer.parseInt(lineNumber));
+
+            if (!vsProject.contains(sourceFile))
+            {
+                message += " (for file " + sourceFile.getName();
+                if (lineNumber != null) {
+                    message += " line " + lineNumber;
+                }
+                message +=  ")";
+            }
+        }
+
+
+        violation.setMessage(message.trim());
+        return violation;
+    }
+
+    private Violation createViolationAgainstProject(SMInputCursor violationsCursor, Rule currentRule, File sourceFile) throws XMLStreamException {
+        Violation violation = Violation.create(currentRule, project);
+        String lineNumber = violationsCursor.getAttrValue("Line");
+
+        String message = violationsCursor.getAttrValue("Message");
+
+        message += " (for file " + sourceFile.getPath();
+        if (lineNumber != null) {
+            message += " line " + lineNumber;
+        }
+        message +=  ")";
+
+        violation.setMessage(message.trim());
+        return violation;
     }
 
 }
