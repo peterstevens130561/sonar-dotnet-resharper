@@ -317,7 +317,7 @@ public class ReSharperResultParser implements BatchExtension {
 
         String message = violationsCursor.getAttrValue("Message");
 
-        message += " (for file " + sourceFile.getPath();
+        message += " (for file " + sourceFile.getName();
         if (lineNumber != null) {
             message += " line " + lineNumber;
         }
