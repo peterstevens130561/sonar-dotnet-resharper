@@ -56,6 +56,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
     private ProjectFileSystem fileSystem;
     private RulesProfile rulesProfile;
     private ReSharperResultParser resharperResultParser;
+    private ReSharperConfiguration resharperConfiguration;
 
     @DependsUpon(DotNetConstants.CORE_PLUGIN_EXECUTED)
     public static class CSharpRegularReSharperSensor extends ReSharperSensor {
@@ -100,6 +101,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
         this.fileSystem = fileSystem;
         this.rulesProfile = rulesProfile;
 
+        this.resharperConfiguration = configuration;
         this.resharperResultParser = resharperResultParser;
 
     }
@@ -114,7 +116,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
         String executionMode = getExecutionMode();
 
         if (MODE_REUSE_REPORT.equalsIgnoreCase(executionMode)) {
-            String reportPath = configuration.getString(ReSharperConstants.REPORTS_PATH_KEY);
+            String reportPath = resharperConfiguration.getString(ReSharperConstants.REPORTS_PATH_KEY);
 
             if (StringUtils.isEmpty(reportPath)) {
                 reportPath = reportDefaultPath;
@@ -130,7 +132,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
             LOG.info("Reusing ReSharper reports: " + Joiner.on("; ").join(reportFiles));
         } else if (executionMode.equals("")) {
             try {
-                ReSharperRunner runner = ReSharperRunner.create(configuration.getString(ReSharperConstants.INSTALL_DIR_KEY));
+                ReSharperRunner runner = ReSharperRunner.create(resharperConfiguration.getString(ReSharperConstants.INSTALL_DIR_KEY));
                 launchInspectCode(project, runner);
             } catch (ReSharperException e) {
                 throw new SonarException("ReSharper execution failed.", e);
@@ -153,7 +155,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
         VisualStudioProject vsProject = getVSProject(project);
         ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject);
         builder.setReportFile(new File(fileSystem.getSonarWorkingDirectory(), ReSharperConstants.REPORT_FILENAME));
-        int timeout = configuration.getInt(ReSharperConstants.TIMEOUT_MINUTES_KEY);
+        int timeout = resharperConfiguration.getInt(ReSharperConstants.TIMEOUT_MINUTES_KEY);
         runner.execute(builder, timeout);
     }
 
