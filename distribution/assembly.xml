@@ -10,7 +10,7 @@
       <outputDirectory>.</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
-        <include>com.wrightfully.sonar-plugins.dotnet.resharper:sonar-dotnet-resharper-plugin</include>
+        <include>org.codehaus.sonar-plugins</include>
       </includes>
     </dependencySet>
   </dependencySets>
