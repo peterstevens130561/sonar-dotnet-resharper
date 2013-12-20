@@ -21,6 +21,7 @@ package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.ProfileImporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.Rule;
@@ -30,6 +31,9 @@ import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperRule;
+
+
+
 
 import java.io.Reader;
 import java.util.List;
@@ -83,7 +87,11 @@ public class ReSharperProfileImporter extends ProfileImporter {
 
         for (ReSharperRule reSharperRule : rules) {
             String ruleName = reSharperRule.getId();
-            Rule rule = ruleFinder.find(RuleQuery.create().withRepositoryKey(getKey()).withKey(ruleName));
+            String ruleKey = getKey();
+            LOG.debug("rule " + ruleName + " key" + ruleKey );
+
+            RuleQuery ruleQuery=RuleQuery.create().withRepositoryKey(ruleKey).withKey(ruleName);
+            Rule rule = ruleFinder.find(ruleQuery);
 
             if (rule != null) {
                 RulePriority sonarPriority = reSharperRule.getSonarPriority();
@@ -96,5 +104,6 @@ public class ReSharperProfileImporter extends ProfileImporter {
 
         return profile;
     }
+    
 
 }
