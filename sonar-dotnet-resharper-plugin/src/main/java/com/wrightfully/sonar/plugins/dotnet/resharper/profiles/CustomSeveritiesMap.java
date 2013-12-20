@@ -19,17 +19,13 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
 
-import org.sonar.api.config.Settings;
-import org.sonar.api.profiles.ProfileDefinition;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.utils.ValidationMessages;
+import java.util.HashMap;
 
-import java.io.InputStreamReader;
+import org.sonar.api.rules.RulePriority;
 
 
-public final class ReSharperSonarWayProfileVbNet extends ReSharperSonarWayProfile {
-    public ReSharperSonarWayProfileVbNet(ReSharperProfileImporter.VbNetRegularReSharperProfileImporter profileImporter,Settings settings) {
-        super(profileImporter, "vbnet",settings);
-    }
+@SuppressWarnings("serial")
+public class CustomSeveritiesMap extends HashMap<String,RulePriority>{
+
+
 }
-
