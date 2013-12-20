@@ -45,6 +45,10 @@ public final class ReSharperConstants {
     public static final int TIMEOUT_MINUTES_DEFVALUE = 20;
 
     public static final String CUSTOM_RULES_PROP_KEY = "sonar.resharper.customRules.definition";
+    
+    public static final String CUSTOM_SEVERITIES_PROP_KEY = "sonar.resharper.customSeverities.definition";
+    public static final String PROFILE_NAME = "sonar.resharper.profile";
+    public static final String PROFILE_DEFVALUE="Sonar Way";
 
     public static final String INCLUDE_ALL_FILES = "sonar.resharper.includeAllFiles";
 }
