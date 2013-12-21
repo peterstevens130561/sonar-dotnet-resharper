@@ -270,15 +270,14 @@ public class ReSharperResultParser implements BatchExtension {
         if (context.isExcluded(sonarFile)) {
             LOG.debug("File is marked as excluded, so not reporting violation: {}", sonarFile.getName());
         } else if (includeAllFiles || vsProject.contains(sourceFile)) {
+        	Violation violation;
             try {
-                Violation violation = createViolationAgainstFile(violationsCursor, currentRule, sourceFile);
-                context.saveViolation(violation);
+                violation = createViolationAgainstFile(violationsCursor, currentRule, sourceFile);
             } catch (Exception ex){
                 LOG.warn("Violation could not be saved against file, associating to VS project instead: " + sourceFile.getPath());
-
-                Violation violation = createViolationAgainstProject(violationsCursor, currentRule, sourceFile);
-                context.saveViolation(violation);
+                violation = createViolationAgainstProject(violationsCursor, currentRule, sourceFile);
             }
+            context.saveViolation(violation);
         } else {
             LOG.debug("Violation not being saved for unsupported file {}", sourceFile.getName());
         }
@@ -307,7 +306,6 @@ public class ReSharperResultParser implements BatchExtension {
 
             }
         }
-
 
         violation.setMessage(message.trim());
         return violation;
