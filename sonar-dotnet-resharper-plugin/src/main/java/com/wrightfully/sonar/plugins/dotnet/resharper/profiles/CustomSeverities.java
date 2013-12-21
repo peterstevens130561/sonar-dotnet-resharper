@@ -135,18 +135,30 @@ public class CustomSeverities {
 	 * @throws ReSharperException 
 	 */
 	private NodeList getStringNodes() throws ReSharperException  {
-		InputSource source = new InputSource(reader);
-        XPathFactory factory = XPathFactory.newInstance();
-        XPath xpath = factory.newXPath();
-        xpath.setNamespaceContext(new NamespaceResolver());
+        XPath xpath = createXPathForInspectCode();
         NodeList nodes;
 		try {
+			InputSource source = new InputSource(reader);
 			nodes = (NodeList) xpath.evaluate("//s:String",source, XPathConstants.NODESET);
 		} catch (XPathExpressionException e) {
 			LOG.error(e.getMessage());
 			throw new ReSharperException(e.getMessage());
 		}
 		return nodes;
+	}
+
+
+	/**
+	 * create xpath and assign the namespace resolver for InspectCode namespace
+	 * @return xpath
+	 */
+	private XPath createXPathForInspectCode() {
+		XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+        NamespaceContext inspectCodeNamespaceResolver = new InspectCodeNamespaceResolver();
+        xpath.setNamespaceContext(inspectCodeNamespaceResolver);
+
+		return xpath;
 	}
 
     public void assignCustomSeverity(ActiveRule activeRule) {
@@ -163,24 +175,4 @@ public class CustomSeverities {
     public CustomSeveritiesMap getSeverities() {
         return severities;
     }
-
-
-    private class NamespaceResolver implements NamespaceContext {
-
-			@Override
-			public String getNamespaceURI(String prefix) {
-				return "clr-namespace:System;assembly=mscorlib";
-			}
-
-			@Override
-			public String getPrefix(String namespaceURI) {
-				return null;
-			}
-
-			@Override
-			public Iterator getPrefixes(String namespaceURI) {
-				return null;
-			}
-	    	
-	    }
 }
