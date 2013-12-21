@@ -45,7 +45,6 @@ public class ReSharperConfiguration implements BatchExtension, ServerExtension {
 
 
     private static final Logger LOG = LoggerFactory.getLogger(ReSharperConfiguration.class);
-
     private Settings settings;
 
     private Map<String, Object> newToPreviousParamMap = Maps.newHashMap();
