@@ -44,16 +44,13 @@ import java.util.List;
         @Property(key = ReSharperConstants.CUSTOM_SEVERITIES_PROP_KEY,
         defaultValue = "", name = "ReSharper custom severities",
         description = "Add &lt;IssueType&gt; values from ReSharper's results file for issues that are not built-in to the plugin's rules. A restart is required to take affect.",
-        type = PropertyType.TEXT, global = true, project = false)
+                type = PropertyType.TEXT, global = true, project = false)
 })
 public class ReSharperRuleRepositoryProvider extends ExtensionProvider implements ServerExtension {
-    private ServerFileSystem fileSystem;
-    private XMLRuleParser xmlRuleParser;
+
     private Settings settings;
 
-    public ReSharperRuleRepositoryProvider(ServerFileSystem fileSystem, Settings settings) {
-        this.fileSystem = fileSystem;
-        this.xmlRuleParser = new XMLRuleParser();
+    public ReSharperRuleRepositoryProvider(Settings settings) {
         this.settings = settings;
     }
 
@@ -64,7 +61,7 @@ public class ReSharperRuleRepositoryProvider extends ExtensionProvider implement
         for (String languageKey : ReSharperConstants.SUPPORTED_LANGUAGES) {
             // every repository key should be "resharper-<language_key>"
             String repoKey = ReSharperConstants.REPOSITORY_KEY + "-" + languageKey;
-            extensions.add(new ReSharperRuleRepository(repoKey, languageKey, fileSystem, xmlRuleParser, settings));
+            extensions.add(new ReSharperRuleRepository(repoKey, languageKey, settings));
         }
 
         return extensions;

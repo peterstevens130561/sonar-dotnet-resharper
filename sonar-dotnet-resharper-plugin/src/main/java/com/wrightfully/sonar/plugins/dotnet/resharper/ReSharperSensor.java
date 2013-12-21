@@ -133,10 +133,10 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
         Collection<File> reportFiles;
         LOG.info("Reuse reports");
 
-        String reportPath = configuration.getString(ReSharperConstants.REPORT_PATH_KEY);
+        String reportPath = configuration.getString(ReSharperConstants.REPORTS_PATH_KEY);
         if (StringUtils.isEmpty(reportPath)) {
             reportPath = getReportDefaultPath();
-            LOG.info(ReSharperConstants.REPORT_PATH_KEY + " undefined, using " + reportPath);
+            LOG.info(ReSharperConstants.REPORTS_PATH_KEY + " undefined, using " + reportPath);
         } else {
             LOG.info("Reportpath " + reportPath);
         }
@@ -148,7 +148,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
         reportFiles = FileFinder.findFiles(vsSolution, vsProject, reportPath);
         LOG.info(" Found " + reportFiles.size() + " files");
         if (reportFiles.size() == 0) {
-            String msg = "No ReSharper reports found. Make sure to set " + ReSharperConstants.REPORT_PATH_KEY;
+            String msg = "No ReSharper reports found. Make sure to set " + ReSharperConstants.REPORTS_PATH_KEY;
             LOG.error(msg);
             new SonarException(msg);
         }
