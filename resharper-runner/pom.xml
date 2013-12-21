@@ -14,5 +14,4 @@
 
   <name>.NET tools :: ReSharper Runner</name>
   <description>Java component that wraps ReSharper inspectcode execution.</description>
-
 </project>
