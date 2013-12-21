@@ -99,7 +99,7 @@ public class CustomSeverities {
             try {
                 severities = parse();
             } catch (ReSharperException e) {
-                LOG.error("Could not get custom severities, error during parsing (ignoring) " + e.getMessage());
+                LOG.error("Could not get custom severities, error during parsing (ignoring) " + e.getMessage(),e);
             }
         }
         return severities;
@@ -109,7 +109,7 @@ public class CustomSeverities {
 		try {
 			tryAddCustomSeverity(node);
 		} catch(ReSharperException e) {
-			LOG.error("Failed to add CustomSeverity on Node " + node + "\nmessage:" + e.getMessage());
+			LOG.error("Failed to add CustomSeverity on Node " + node + "\nmessage:" + e.getMessage(),e);
 		}
 	}
  	private void tryAddCustomSeverity(Node node) throws ReSharperException  {
@@ -153,7 +153,7 @@ public class CustomSeverities {
 			InputSource source = new InputSource(reader);
 			nodes = (NodeList) xpath.evaluate("//s:String",source, XPathConstants.NODESET);
 		} catch (XPathExpressionException e) {
-			LOG.error(e.getMessage());
+			LOG.error("XPath failure, unexpected as expression is hardcoded",e);
 			throw new ReSharperException(e.getMessage());
 		}
 		return nodes;

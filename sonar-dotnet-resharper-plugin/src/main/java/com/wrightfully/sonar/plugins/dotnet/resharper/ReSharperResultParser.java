@@ -122,8 +122,7 @@ public class ReSharperResultParser implements BatchExtension {
                 }
             }
 
-            if (missingTypesHelper.hasMissingIssues())
-            {
+            if (missingTypesHelper.hasMissingIssues()) {
                 missingTypesHelper.logMissingIssues();
             }
 
@@ -180,9 +179,9 @@ public class ReSharperResultParser implements BatchExtension {
 
         public void logMissingIssues() {
 
-            if (!hasMissingIssues())
+            if (!hasMissingIssues()) {
                 return;
-
+            }
             StringBuilder logMessageBuf = new StringBuilder( "The following IssueTypes are not known to the SonarQube ReSharper plugin.\n" +
                     "Add the following text to the 'ReSharper custom rules' property in the Settings UI to add local " +
                     "support for these rules and submit them to " + issuesLink + " so that they can be included in " +
