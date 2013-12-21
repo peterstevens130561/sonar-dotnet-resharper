@@ -46,6 +46,17 @@ public class ReSharperViolation {
     		this.vsProject = vsProject;
     	}
     	
+    	public void  createFileOrProjectViolation(SMInputCursor violationsCursor, Rule currentRule, File sourceFile)
+    			throws XMLStreamException {
+    		Violation violation;
+    		try {
+    			violation=createViolationAgainstFile(violationsCursor, currentRule, sourceFile);
+    		} catch (Exception ex){
+    		    LOG.warn("Violation could not be saved against file, associating to VS project instead: " + sourceFile.getPath());
+    		    violation=createViolationAgainstProject(violationsCursor, currentRule, sourceFile);
+    		}
+            context.saveViolation(violation);
+    	}
 	     Violation createViolationAgainstFile(SMInputCursor violationsCursor, Rule currentRule, File sourceFile) throws Exception {
 	        final org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.fromIOFile(sourceFile, project);
 
