@@ -22,14 +22,11 @@ package com.wrightfully.sonar.plugins.dotnet.resharper;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.utils.SonarException;
 
 
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.Issue;
 
-/**
- * @author stevpet
- *
- */
 public class FailOnIssuesTest {
 
 	static final String ERROR_TYPE = "CSharpErrors";
@@ -39,7 +36,7 @@ public class FailOnIssuesTest {
 	}
 	
 	@Test
-	public void ThrowExceptionOnFailingIssueInResult() {
+	public void FailingIssue() {
 		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
 		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
 		Issue issue = new Issue();
@@ -52,7 +49,7 @@ public class FailOnIssuesTest {
 	}
 	
 	@Test
-	public void NoExceptionOnIssueInResult() {
+	public void NonFailingIssue() {
 		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
 		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
 		Issue issue = new Issue();
@@ -61,5 +58,33 @@ public class FailOnIssuesTest {
 		issue.setMessage("Compilation Error");
 		
 		Assert.assertFalse(failingIssueVisitor.hasMatches());
+	}
+	
+	@Test(expected=SonarException.class)
+	public void ThrowExceptionOnFailingIssueInResult() {
+		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
+		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
+		Issue issue = new Issue();
+		issue.setId(ERROR_TYPE);
+		issue.setLine("1");
+		issue.setMessage("Compilation Error");
+		
+		failingIssueVisitor.Visit(issue);
+		failingIssueVisitor.Check();
+		Assert.assertTrue("Should not get here",false);
+	}
+	
+	@Test
+	public void NoExceptionOnNoFailingIssues() {
+		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
+		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
+		Issue issue = new Issue();
+		issue.setId(ERROR_TYPE + "a");
+		issue.setLine("1");
+		issue.setMessage("Compilation Error");
+		
+		failingIssueVisitor.Visit(issue);
+		failingIssueVisitor.Check();
+		Assert.assertTrue("Should get here",true);
 	}
 }

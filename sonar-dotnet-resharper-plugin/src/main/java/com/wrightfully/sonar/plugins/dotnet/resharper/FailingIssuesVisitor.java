@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
+import org.sonar.api.utils.SonarException;
 
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.CustomSeverities;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.Issue;
@@ -57,6 +58,15 @@ public class FailingIssuesVisitor {
 	public void setIssuesToFailOn(String issueTypes) {
 		for(String issue : issueTypes.split(",")) {
 			this.issuesToFailOn.add(issue);
+		}
+		
+	}
+
+	public void Check() {
+		if(hasMatches()) {
+			String msg = String.format("found %d issues that will cause the analysis to fail, please address first. Showing first %d issues\n",issues.size(),10);
+			LOG.error(msg);
+			throw new SonarException("Issues found that fail the analysis, please check the log");
 		}
 		
 	}
