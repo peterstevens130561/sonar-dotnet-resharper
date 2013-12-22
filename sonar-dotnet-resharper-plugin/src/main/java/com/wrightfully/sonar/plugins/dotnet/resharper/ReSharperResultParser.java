@@ -278,18 +278,5 @@ public class ReSharperResultParser implements BatchExtension {
 
     }
 
-	private void  createFileOrProjectViolation(
-			SMInputCursor violationsCursor, Rule currentRule, File sourceFile,
-			ReSharperViolation violationBuilder)
-			throws XMLStreamException {
-		Violation violation;
-		try {
-			violation=violationBuilder.createViolationAgainstFile(violationsCursor, currentRule, sourceFile);
-		} catch (Exception ex){
-		    LOG.warn("Violation could not be saved against file, associating to VS project instead: " + sourceFile.getPath());
-		    violation=violationBuilder.createViolationAgainstProject(violationsCursor, currentRule, sourceFile);
-		}
-        context.saveViolation(violation);
-	}
 
 }

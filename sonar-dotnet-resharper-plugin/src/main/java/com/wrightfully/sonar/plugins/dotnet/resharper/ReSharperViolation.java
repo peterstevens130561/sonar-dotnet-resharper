@@ -38,9 +38,11 @@ public class ReSharperViolation {
 	private Project project;
 	private VisualStudioProject vsProject;
     private SensorContext context;
+    private Violation violation ;
 
 
-    	public ReSharperViolation(SensorContext context,Project project,VisualStudioProject vsProject) {
+
+		public ReSharperViolation(SensorContext context,Project project,VisualStudioProject vsProject) {
     		this.context = context;
     		this.project = project;
     		this.vsProject = vsProject;
@@ -48,7 +50,6 @@ public class ReSharperViolation {
     	
     	public void  createFileOrProjectViolation(SMInputCursor violationsCursor, Rule currentRule, File sourceFile)
     			throws XMLStreamException {
-    		Violation violation;
     		try {
     			violation=createViolationAgainstFile(violationsCursor, currentRule, sourceFile);
     		} catch (Exception ex){
@@ -57,7 +58,7 @@ public class ReSharperViolation {
     		}
             context.saveViolation(violation);
     	}
-	     Violation createViolationAgainstFile(SMInputCursor violationsCursor, Rule currentRule, File sourceFile) throws Exception {
+	    private Violation createViolationAgainstFile(SMInputCursor violationsCursor, Rule currentRule, File sourceFile) throws Exception {
 	        final org.sonar.api.resources.File sonarFile = org.sonar.api.resources.File.fromIOFile(sourceFile, project);
 
 	        Violation violation = Violation.create(currentRule, sonarFile);
@@ -83,7 +84,7 @@ public class ReSharperViolation {
 	        return violation;
 	    }
 
-	    Violation createViolationAgainstProject(SMInputCursor violationsCursor, Rule currentRule, File sourceFile) throws XMLStreamException {
+	    private Violation createViolationAgainstProject(SMInputCursor violationsCursor, Rule currentRule, File sourceFile) throws XMLStreamException {
 	        Violation violation = Violation.create(currentRule, project);
 	        String lineNumber = violationsCursor.getAttrValue("Line");
 
@@ -98,5 +99,13 @@ public class ReSharperViolation {
 	        violation.setMessage(message.trim());
 	        return violation;
 	    }
+	    
+	    public Violation getViolation() {
+			return violation;
+		}
+
+		public void setViolation(Violation violation) {
+			this.violation = violation;
+		}
 
 }

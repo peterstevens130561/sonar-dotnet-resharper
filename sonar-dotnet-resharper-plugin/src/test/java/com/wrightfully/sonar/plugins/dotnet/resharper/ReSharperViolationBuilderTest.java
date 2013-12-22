@@ -137,6 +137,56 @@ public class ReSharperViolationBuilderTest {
     }
 
     @Test
+    public void CreateViolationForSourceFileInProjectOrFile() throws Exception {
+    	ReSharperViolation violationBuilder = new ReSharperViolation(_context,_project,_vsProject);
+    	SMInputCursor violationsCursor = mock(SMInputCursor.class);
+    	String message="booh";
+    	String line="1234";
+    	when(violationsCursor.getAttrValue("Line")).thenReturn(line);
+    	when(violationsCursor.getAttrValue("Message")).thenReturn(message);
+
+		Rule currentRule = _rudRule;
+		File sourceFile = mock(File.class);
+		List<File> files=_project.getFileSystem().getSourceDirs();
+		when(sourceFile.getAbsolutePath()).thenReturn(files.get(0) + "/humbug.cs");
+		
+		when(_vsProject.contains(any(File.class))).thenReturn(true);
+		
+		violationBuilder.createFileOrProjectViolation(violationsCursor, currentRule, sourceFile);
+		Violation violation=violationBuilder.getViolation();
+		Assert.assertEquals(line,violation.getLineId().toString());
+		Assert.assertEquals(message,violation.getMessage());
+    }
+    
+    /**
+     * Violation associated to a file noit in the project,
+     * 
+     * @throws Exception
+     */
+    @Test
+    public void CreateViolationForProject() throws Exception {
+    	ReSharperViolation violationBuilder = new ReSharperViolation(_context,_project,_vsProject);
+    	SMInputCursor violationsCursor = mock(SMInputCursor.class);
+    	String message="booh";
+    	String line="1234";
+    	when(violationsCursor.getAttrValue("Line")).thenReturn(null);
+    	when(violationsCursor.getAttrValue("Message")).thenReturn(message);
+
+		Rule currentRule = _rudRule;
+		File sourceFile = mock(File.class);
+		when(sourceFile.getAbsolutePath()).thenReturn("/humbug.cs");
+		
+		when(_vsProject.contains(any(File.class))).thenReturn(false);
+		
+		violationBuilder.createFileOrProjectViolation(violationsCursor, currentRule, sourceFile);
+		
+		Violation violation=violationBuilder.getViolation();
+		Assert.assertEquals(null,violation.getLineId());
+		Assert.assertEquals(message,violation.getMessage());
+    }
+
+
+    @Test
     public void CreateViolationForSourceFileInProject() throws Exception {
     	ReSharperViolation violationBuilder = new ReSharperViolation(_context,_project,_vsProject);
     	SMInputCursor violationsCursor = mock(SMInputCursor.class);
@@ -152,7 +202,8 @@ public class ReSharperViolationBuilderTest {
 		
 		when(_vsProject.contains(any(File.class))).thenReturn(true);
 		
-		Violation violation=violationBuilder.createViolationAgainstFile(violationsCursor, currentRule, sourceFile);
+		violationBuilder.createFileOrProjectViolation(violationsCursor, currentRule, sourceFile);	
+		Violation violation=violationBuilder.getViolation();
 		Assert.assertEquals(line,violation.getLineId().toString());
 		Assert.assertEquals(message,violation.getMessage());
     }
@@ -173,7 +224,9 @@ public class ReSharperViolationBuilderTest {
 		
 		when(_vsProject.contains(any(File.class))).thenReturn(false);
 		
-		Violation violation=violationBuilder.createViolationAgainstFile(violationsCursor, currentRule, sourceFile);
+		violationBuilder.createFileOrProjectViolation(violationsCursor, currentRule, sourceFile);
+		
+		Violation violation=violationBuilder.getViolation();
 		Assert.assertEquals(line,violation.getLineId().toString());
 		String expected=message + " (for file humbug.cs line " + line + ")";
 		Assert.assertEquals(expected,violation.getMessage());
