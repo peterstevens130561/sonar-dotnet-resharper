@@ -51,4 +51,5 @@ public final class ReSharperConstants {
     public static final String PROFILE_DEFVALUE="Sonar Way";
 
     public static final String INCLUDE_ALL_FILES = "sonar.resharper.includeAllFiles";
+    public static final String FAIL_ON_ISSUES_KEY = "sonar.resharper.failOnIssues";
 }
