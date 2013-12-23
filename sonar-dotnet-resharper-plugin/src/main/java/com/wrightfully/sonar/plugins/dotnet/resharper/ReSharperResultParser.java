@@ -41,13 +41,18 @@ import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
 import org.sonar.plugins.dotnet.api.utils.ResourceHelper;
 import org.sonar.plugins.dotnet.api.utils.StaxParserUtils;
 
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueModel;
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueVisitor;
+
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,6 +73,8 @@ public class ReSharperResultParser implements BatchExtension {
 
     private final static String issuesLink = "https://jira.codehaus.org/browse/SONARPLUGINS/component/16153";
     private final static String missingIssueTypesRuleKey = "ReSharperInspectCode#Sonar.UnknownIssueType";
+    
+    private List<IssueVisitor> issueVisitors = new ArrayList<IssueVisitor>();
 
     /**
      * Constructs a @link{ReSharperResultParser}.
@@ -93,6 +100,9 @@ public class ReSharperResultParser implements BatchExtension {
         includeAllFiles = configuration.getBoolean(ReSharperConstants.INCLUDE_ALL_FILES);
     }
 
+    public void addVisitor(IssueVisitor visitor) {
+    	issueVisitors.add(visitor);
+    }
     /**
      * Parses a processed violation file.
      *
@@ -270,12 +280,20 @@ public class ReSharperResultParser implements BatchExtension {
         if (context.isExcluded(sonarFile)) {
             LOG.debug("File is marked as excluded, so not reporting violation: {}", sonarFile.getName());
         } else if (includeAllFiles || vsProject.contains(sourceFile)) {
+        	IssueModel issue = new IssueModel(violationsCursor);
+        	greetVisitors(issue);
         	ReSharperViolation violationBuilder = new ReSharperViolation(context,project,vsProject);
         	violationBuilder.createFileOrProjectViolation(violationsCursor, currentRule, sourceFile);
         } else {
             LOG.debug("Violation not being saved for unsupported file {}", sourceFile.getName());
         }
 
+    }
+    
+    private void greetVisitors(IssueModel issue) {
+    	for(IssueVisitor issueVisitor : issueVisitors) {
+    		issueVisitor.visit(issue);
+    	}
     }
 
 

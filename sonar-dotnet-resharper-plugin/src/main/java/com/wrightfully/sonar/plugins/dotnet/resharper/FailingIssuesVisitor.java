@@ -32,7 +32,7 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.utils.SonarException;
 
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.CustomSeverities;
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.Issue;
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueModel;
 
 @Properties({
     @Property(key = ReSharperConstants.FAIL_ON_ISSUES_KEY,
@@ -44,13 +44,13 @@ public class FailingIssuesVisitor {
     private static final Logger LOG = LoggerFactory.getLogger(FailingIssuesVisitor.class);
     
     private Collection<String> issuesToFailOn = new ArrayList<String>();
-    private List<Issue> issues =new ArrayList<Issue>();
+    private List<IssueModel> issues =new ArrayList<IssueModel>();
     
 	public Boolean hasMatches() {
 		return issues.size() > 0;
 	}
 
-	public void Visit(Issue issue) {
+	public void Visit(IssueModel issue) {
 		if(issuesToFailOn.contains(issue.getId())) {
 			issues.add(issue);
 		}

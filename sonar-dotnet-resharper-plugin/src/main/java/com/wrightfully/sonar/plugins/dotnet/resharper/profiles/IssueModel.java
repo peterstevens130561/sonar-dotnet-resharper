@@ -1,5 +1,7 @@
 package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
 
+import org.codehaus.staxmate.in.SMInputCursor;
+
 /*
  * Sonar .NET Plugin :: ReSharper
  * Copyright (C) 2013 John M. Wright
@@ -20,12 +22,19 @@ package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 
-public class Issue {
+public class IssueModel {
 	private String message ;
 	private String file ;
 	private String line ;
 	private String id ;
 	
+	public IssueModel(SMInputCursor violationsCursor) {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public IssueModel() {
+		// TODO Auto-generated constructor stub
+	}
 	public String getMessage() {
 		return message;
 	}

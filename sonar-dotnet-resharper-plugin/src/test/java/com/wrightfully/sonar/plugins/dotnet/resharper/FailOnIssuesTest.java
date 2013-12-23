@@ -25,7 +25,7 @@ import org.junit.Test;
 import org.sonar.api.utils.SonarException;
 
 
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.Issue;
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueModel;
 
 public class FailOnIssuesTest {
 
@@ -39,7 +39,7 @@ public class FailOnIssuesTest {
 	public void FailingIssue() {
 		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
 		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
-		Issue issue = new Issue();
+		IssueModel issue = new IssueModel();
 		issue.setId(ERROR_TYPE);
 		issue.setLine("1");
 		issue.setMessage("Compilation Error");
@@ -52,7 +52,7 @@ public class FailOnIssuesTest {
 	public void NonFailingIssue() {
 		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
 		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
-		Issue issue = new Issue();
+		IssueModel issue = new IssueModel();
 		issue.setId(ERROR_TYPE + "a");
 		issue.setLine("1");
 		issue.setMessage("Compilation Error");
@@ -64,7 +64,7 @@ public class FailOnIssuesTest {
 	public void ThrowExceptionOnFailingIssueInResult() {
 		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
 		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
-		Issue issue = new Issue();
+		IssueModel issue = new IssueModel();
 		issue.setId(ERROR_TYPE);
 		issue.setLine("1");
 		issue.setMessage("Compilation Error");
@@ -78,7 +78,7 @@ public class FailOnIssuesTest {
 	public void NoExceptionOnNoFailingIssues() {
 		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
 		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
-		Issue issue = new Issue();
+		IssueModel issue = new IssueModel();
 		issue.setId(ERROR_TYPE + "a");
 		issue.setLine("1");
 		issue.setMessage("Compilation Error");
