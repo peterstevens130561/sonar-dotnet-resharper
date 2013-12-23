@@ -44,7 +44,7 @@ public class FailOnIssuesTest {
 		issue.setLine("1");
 		issue.setMessage("Compilation Error");
 		
-		failingIssueVisitor.Visit(issue);
+		failingIssueVisitor.visit(issue);
 		Assert.assertTrue(failingIssueVisitor.hasMatches());
 	}
 	
@@ -69,7 +69,7 @@ public class FailOnIssuesTest {
 		issue.setLine("1");
 		issue.setMessage("Compilation Error");
 		
-		failingIssueVisitor.Visit(issue);
+		failingIssueVisitor.visit(issue);
 		failingIssueVisitor.Check();
 		Assert.assertTrue("Should not get here",false);
 	}
@@ -83,7 +83,7 @@ public class FailOnIssuesTest {
 		issue.setLine("1");
 		issue.setMessage("Compilation Error");
 		
-		failingIssueVisitor.Visit(issue);
+		failingIssueVisitor.visit(issue);
 		failingIssueVisitor.Check();
 		Assert.assertTrue("Should get here",true);
 	}

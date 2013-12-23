@@ -1,5 +1,7 @@
 package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
 
+import javax.xml.stream.XMLStreamException;
+
 import org.codehaus.staxmate.in.SMInputCursor;
 
 /*
@@ -28,8 +30,11 @@ public class IssueModel {
 	private String line ;
 	private String id ;
 	
-	public IssueModel(SMInputCursor violationsCursor) {
-		// TODO Auto-generated constructor stub
+	public IssueModel(SMInputCursor violationsCursor) throws XMLStreamException {
+		setId(violationsCursor.getAttrValue("TypeId"));
+		setMessage(violationsCursor.getAttrValue("Message"));
+		setFile(violationsCursor.getAttrValue("File"));
+		setLine(violationsCursor.getAttrValue("Line"));
 	}
 	
 	public IssueModel() {

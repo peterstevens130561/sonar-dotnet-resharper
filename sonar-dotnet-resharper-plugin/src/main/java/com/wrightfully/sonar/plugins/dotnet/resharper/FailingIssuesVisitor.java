@@ -31,8 +31,8 @@ import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.utils.SonarException;
 
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.CustomSeverities;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueModel;
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueVisitor;
 
 @Properties({
     @Property(key = ReSharperConstants.FAIL_ON_ISSUES_KEY,
@@ -40,17 +40,14 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueModel;
     description = "Add IssueType values from ReSharper's results file for issues that should result in the analysis failing, i.e. CSharpErrors",
             type = PropertyType.TEXT, global = true, project = false)
 })
-public class FailingIssuesVisitor {
+public class FailingIssuesVisitor implements IssueVisitor {
     private static final Logger LOG = LoggerFactory.getLogger(FailingIssuesVisitor.class);
     
     private Collection<String> issuesToFailOn = new ArrayList<String>();
     private List<IssueModel> issues =new ArrayList<IssueModel>();
     
-	public Boolean hasMatches() {
-		return issues.size() > 0;
-	}
 
-	public void Visit(IssueModel issue) {
+	public void visit(IssueModel issue) {
 		if(issuesToFailOn.contains(issue.getId())) {
 			issues.add(issue);
 		}
@@ -62,6 +59,7 @@ public class FailingIssuesVisitor {
 		
 	}
 
+	
 	public void Check() {
 		if(hasMatches()) {
 			String msg = String.format("found %d issues that will cause the analysis to fail, please address first. Showing first %d issues\n",issues.size(),10);
@@ -71,4 +69,11 @@ public class FailingIssuesVisitor {
 		
 	}
 	
+	public Boolean hasMatches() {
+		return issues.size() > 0;
+	}
+	public int getErrorCount() {
+		return issues.size();
+	}
+
 }
