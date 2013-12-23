@@ -179,6 +179,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
     private void analyseResults(File reportFile) throws SonarException {
         if (reportFile.exists()) {
             LOG.debug("ReSharper report found at location" + reportFile);
+            addFailingIssuesVisitor();
             resharperResultParser.parse(reportFile);
         } else {
             String msg = "No ReSharper report found for path " + reportFile;
@@ -186,5 +187,12 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
             throw new SonarException(msg);
         }
     }
+
+	private void addFailingIssuesVisitor() {
+		FailingIssuesVisitor failingIssuesVisitor = new FailingIssuesVisitor();
+		String issuesToFailOn=configuration.getString(ReSharperConstants.FAIL_ON_ISSUES_KEY);
+		failingIssuesVisitor.setIssueTypesToFailOn(issuesToFailOn);
+		resharperResultParser.addVisitor(failingIssuesVisitor);
+	}
 
 }

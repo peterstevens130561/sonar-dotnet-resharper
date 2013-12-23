@@ -52,11 +52,18 @@ public class FailingIssuesVisitor implements IssueVisitor {
 			issues.add(issue);
 		}
 	}
-	public void setIssuesToFailOn(String issueTypes) {
+	
+	/**
+	 * Provide comma seperated list of issueTypes on which the analysis should fail
+	 * @param issueTypes
+	 */
+	public void setIssueTypesToFailOn(String issueTypes) {
+		if(issueTypes == null) {
+			return;
+		}
 		for(String issue : issueTypes.split(",")) {
 			this.issuesToFailOn.add(issue);
 		}
-		
 	}
 
 	

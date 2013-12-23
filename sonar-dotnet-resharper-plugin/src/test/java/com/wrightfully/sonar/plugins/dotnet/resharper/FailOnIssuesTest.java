@@ -38,7 +38,7 @@ public class FailOnIssuesTest {
 	@Test
 	public void FailingIssue() {
 		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
-		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
+		failingIssueVisitor.setIssueTypesToFailOn(ERROR_TYPE);
 		IssueModel issue = new IssueModel();
 		issue.setId(ERROR_TYPE);
 		issue.setLine("1");
@@ -51,7 +51,7 @@ public class FailOnIssuesTest {
 	@Test
 	public void NonFailingIssue() {
 		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
-		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
+		failingIssueVisitor.setIssueTypesToFailOn(ERROR_TYPE);
 		IssueModel issue = new IssueModel();
 		issue.setId(ERROR_TYPE + "a");
 		issue.setLine("1");
@@ -63,7 +63,7 @@ public class FailOnIssuesTest {
 	@Test(expected=SonarException.class)
 	public void ThrowExceptionOnFailingIssueInResult() {
 		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
-		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
+		failingIssueVisitor.setIssueTypesToFailOn(ERROR_TYPE);
 		IssueModel issue = new IssueModel();
 		issue.setId(ERROR_TYPE);
 		issue.setLine("1");
@@ -77,7 +77,7 @@ public class FailOnIssuesTest {
 	@Test
 	public void NoExceptionOnNoFailingIssues() {
 		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
-		failingIssueVisitor.setIssuesToFailOn(ERROR_TYPE);
+		failingIssueVisitor.setIssueTypesToFailOn(ERROR_TYPE);
 		IssueModel issue = new IssueModel();
 		issue.setId(ERROR_TYPE + "a");
 		issue.setLine("1");

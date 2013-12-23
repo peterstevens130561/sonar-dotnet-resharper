@@ -23,19 +23,15 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.nio.charset.Charset;
-import java.util.List;
 
 import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
@@ -45,7 +41,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.api.rules.Violation;
 import org.sonar.plugins.dotnet.api.DotNetResourceBridge;
 import org.sonar.plugins.dotnet.api.microsoft.MicrosoftWindowsEnvironment;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioProject;
@@ -54,7 +49,6 @@ import org.sonar.plugins.dotnet.api.utils.ResourceHelper;
 import org.sonar.test.TestUtils;
 
 import com.google.common.collect.Lists;
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueVisitor;
 
 public class FailingIssuesVisitorTest {
 
@@ -74,6 +68,9 @@ public class FailingIssuesVisitorTest {
     private Rule _missingRule;
 
     final static String RESULT_FILE = "/solution/Example/resharper-results-example_sln.xml";
+    File resultFile;
+    FailingIssuesVisitor failingIssuesVisitor;
+    
     @Before
     public void init() throws Exception {
         _context = mock(SensorContext.class);
@@ -81,7 +78,7 @@ public class FailingIssuesVisitorTest {
         _resourcesBridge = mock(DotNetResourceBridge.class);
         when(_resourcesBridge.getLanguageKey()).thenReturn("cs");
 
-        File resultFile = TestUtils.getResource(RESULT_FILE);
+        resultFile = TestUtils.getResource(RESULT_FILE);
         final File soltionFolder = new File(resultFile.getParent());
         if (!soltionFolder.exists())
             throw new Exception("Solution folder path does not exist: " + soltionFolder.getPath());
@@ -137,6 +134,9 @@ public class FailingIssuesVisitorTest {
         _missingRule= Rule.create(ReSharperConstants.REPOSITORY_KEY, "Sonar.UnknownIssueType", "Sonar.UnknownIssueType")
                 .setConfigKey("ReSharperInspectCode#Sonar.UnknownIssueType");
 
+        ConfigureState(true, false, true);
+        failingIssuesVisitor = new FailingIssuesVisitor();
+        _parser.addVisitor(failingIssuesVisitor);
     }
 	
     private void ConfigureState(boolean isSupported, boolean isExcluded, boolean propertyIncludeAllFiles) {
@@ -154,12 +154,8 @@ public class FailingIssuesVisitorTest {
     
 	@Test
 	public void GetVisitedWithIssuesThatDoNotFailTheAnalysis() {
-        ConfigureState(true, false, true);
 
-        File resultFile = TestUtils.getResource("/solution/Example/resharper-results-example_sln.xml");
-        FailingIssuesVisitor failingIssuesVisitor = new FailingIssuesVisitor();
-        failingIssuesVisitor.setIssuesToFailOn("CSharpErrors");
-        _parser.addVisitor(failingIssuesVisitor);
+        failingIssuesVisitor.setIssueTypesToFailOn("CSharpErrors");
         _parser.parse(resultFile);
         int errors=failingIssuesVisitor.getErrorCount();
         Assert.assertEquals("expect no errors", errors,0);
@@ -167,30 +163,41 @@ public class FailingIssuesVisitorTest {
 	
 	@Test
 	public void GetVisitedWithIssuesThatDoFailTheAnalysis() {
-        ConfigureState(true, false, true);
 
-        File resultFile = TestUtils.getResource("/solution/Example/resharper-results-example_sln.xml");
-        FailingIssuesVisitor failingIssuesVisitor = new FailingIssuesVisitor();
-        failingIssuesVisitor.setIssuesToFailOn("SuggestUseVarKeywordEvident");
-        _parser.addVisitor(failingIssuesVisitor);
+
+        failingIssuesVisitor.setIssueTypesToFailOn("SuggestUseVarKeywordEvident");
         _parser.parse(resultFile);
         int errors=failingIssuesVisitor.getErrorCount();
         Assert.assertEquals("expect five errors in example.application", 5,errors);
         
 	}
 	
+	/**
+	 * Test the default situation
+	 */
 	@Test
-	public void GetVisitedWithTwoIssueTypesThatDoFailTheAnalysis() {
-        ConfigureState(true, false, true);
-
-        File resultFile = TestUtils.getResource("/solution/Example/resharper-results-example_sln.xml");
-        FailingIssuesVisitor failingIssuesVisitor = new FailingIssuesVisitor();
-        failingIssuesVisitor.setIssuesToFailOn("UnusedParameter.Local,ClassNeverInstantiated.Global");
-        _parser.addVisitor(failingIssuesVisitor);
+	public void GetVisitedWithIssuesAndNoRulesSpecified() {
+        failingIssuesVisitor.setIssueTypesToFailOn("");
         _parser.parse(resultFile);
         int errors=failingIssuesVisitor.getErrorCount();
-        Assert.assertEquals("expect five errors in example.application", 5,errors);
+        Assert.assertEquals("expect no errors in example.application", 0,errors);
         
+	}
+	
+	@Test
+	public void GetVisitedWithIssuesAndNullRulesSpecified() {
+        failingIssuesVisitor.setIssueTypesToFailOn(null);
+        _parser.parse(resultFile);
+        int errors=failingIssuesVisitor.getErrorCount();
+        Assert.assertEquals("expect no errors in example.application", 0,errors);
+        
+	}
+	@Test
+	public void GetVisitedWithTwoIssueTypesThatDoFailTheAnalysis() {
+        failingIssuesVisitor.setIssueTypesToFailOn("UnusedParameter.Local,ClassNeverInstantiated.Global");
+        _parser.parse(resultFile);
+        int errors=failingIssuesVisitor.getErrorCount();
+        Assert.assertEquals("expect two errors in example.application", 2,errors);
 	}
 	
 	   private RuleFinder newRuleFinder() {
