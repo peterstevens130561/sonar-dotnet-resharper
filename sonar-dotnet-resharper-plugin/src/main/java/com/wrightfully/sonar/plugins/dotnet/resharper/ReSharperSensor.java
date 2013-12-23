@@ -92,7 +92,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
 
 
     /**
-     * Constructs a {@link org.sonar.plugins.csharp.resharper.ReSharperSensor}.
+     * Constructs a {@link com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperSensor}.
      *
      */
     protected ReSharperSensor(ProjectFileSystem fileSystem, RulesProfile rulesProfile,   ReSharperProfileExporter profileExporter,
@@ -130,7 +130,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
             }
 
             LOG.info("Reusing ReSharper reports: " + Joiner.on("; ").join(reportFiles));
-        } else if (executionMode.equals("")) {
+        } else if (StringUtils.isEmpty(executionMode)) {
             try {
                 ReSharperRunner runner = ReSharperRunner.create(resharperConfiguration.getString(ReSharperConstants.INSTALL_DIR_KEY));
                 launchInspectCode(project, runner);
