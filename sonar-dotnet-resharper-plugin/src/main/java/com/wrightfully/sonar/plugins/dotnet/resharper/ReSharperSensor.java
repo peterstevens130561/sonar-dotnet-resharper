@@ -120,7 +120,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
         }
         // and analyze results
         for (File reportFile : reportFiles) {
-            LOG.info("Analysing report" + reportFile.getName());
+            LOG.debug("Analysing report" + reportFile.getName());
             analyseResults(reportFile);
         }
     }
@@ -138,7 +138,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
             reportPath = getReportDefaultPath();
             LOG.info(ReSharperConstants.REPORTS_PATH_KEY + " undefined, using " + reportPath);
         } else {
-            LOG.info("Reportpath " + reportPath);
+            LOG.debug("Reportpath " + reportPath);
         }
 
         VisualStudioSolution vsSolution = getVSSolution();
