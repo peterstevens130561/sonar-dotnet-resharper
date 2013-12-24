@@ -173,6 +173,11 @@ public class CustomSeverities {
 		return xpath;
 	}
 
+	/**
+	 * Given a rule in the profile, check if it is in the custom severities, and if so, take its changed severity
+	 * 
+	 * @param activeRule - the rule that will be changed
+	 */
     public void assignCustomSeverity(ActiveRule activeRule) {
         String ruleKey = activeRule.getRuleKey();
         if (severities == null) return;

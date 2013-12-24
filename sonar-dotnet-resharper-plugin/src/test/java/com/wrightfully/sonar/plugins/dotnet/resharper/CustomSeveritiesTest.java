@@ -18,9 +18,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper;
-
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
+import org.sonar.api.rules.RulePriority;
 
 import junit.framework.Assert;
 
@@ -105,5 +109,49 @@ public class CustomSeveritiesTest {
 		CustomSeverities customSeverities = new CustomSeverities() ;
 		CustomSeveritiesMap map = customSeverities.parseString(customList);
 		Assert.assertEquals(1, map.size());				
+	}
+	
+	/**
+	 * Lots of assumptions are made on the rules, check that an invalid key is survived
+	 */
+	@Test
+	public void InvalidCustomRuleWithWeirdKeyShouldBeIgnored() {
+		String invalidSeverity = "<s:String x:Key=\"InvalidKey\">ERROR</s:String>";
+		String customList = header + invalidSeverity + footer;
+		CustomSeverities customSeverities = new CustomSeverities() ;
+		CustomSeveritiesMap map = customSeverities.parseString(customList);
+		Assert.assertEquals(0, map.size());				
+	}
+	
+	@Test
+	public void NoCustomSeveritiesDefinedCheckThatActiveRuleIsNotChanged() {
+		String customSeverity = "<s:String x:Key=\"/Default/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
+		String customList = header + customSeverity + footer;
+		Rule rule = new Rule();
+		rule.setSeverity(null);
+		rule.setKey("bozo");
+		rule.setSeverity(RulePriority.INFO);
+		ActiveRule activeRule = new ActiveRule(null,rule,null);
+		
+		CustomSeverities customSeverities = new CustomSeverities() ;
+		customSeverities.parseString(customList);
+		customSeverities.assignCustomSeverity(activeRule);
+		Assert.assertEquals(RulePriority.INFO, activeRule.getSeverity());
+	}
+	
+	@Test
+	public void CustomSeveritiesDefinedCheckThatActiveRuleIsChanged() {
+		String customSeverity = "<s:String x:Key=\"/Default/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
+		String customList = header + customSeverity + footer;
+		Rule rule = new Rule();
+		rule.setSeverity(null);
+		rule.setKey("AssignNullToNotNullAttribute");
+		rule.setSeverity(RulePriority.INFO);
+		ActiveRule activeRule = new ActiveRule(null,rule,null);
+		
+		CustomSeverities customSeverities = new CustomSeverities() ;
+		customSeverities.parseString(customList);
+		customSeverities.assignCustomSeverity(activeRule);
+		Assert.assertEquals(RulePriority.BLOCKER, activeRule.getSeverity());
 	}
 }
