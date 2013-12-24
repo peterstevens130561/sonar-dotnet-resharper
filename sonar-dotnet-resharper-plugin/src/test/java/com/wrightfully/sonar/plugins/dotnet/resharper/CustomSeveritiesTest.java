@@ -94,4 +94,16 @@ public class CustomSeveritiesTest {
 		CustomSeveritiesMap map = customSeverities.parseString(customList);
 		Assert.assertEquals(1, map.size());				
 	}
+	
+	/**
+	 * Duplicate custom rule
+	 */
+	@Test
+	public void DuplicateCustomRuleShouldHaveOnlyOney() {
+		String customSeverity = "<s:String x:Key=\"/Default/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
+		String customList = header + customSeverity + customSeverity + footer;
+		CustomSeverities customSeverities = new CustomSeverities() ;
+		CustomSeveritiesMap map = customSeverities.parseString(customList);
+		Assert.assertEquals(1, map.size());				
+	}
 }
