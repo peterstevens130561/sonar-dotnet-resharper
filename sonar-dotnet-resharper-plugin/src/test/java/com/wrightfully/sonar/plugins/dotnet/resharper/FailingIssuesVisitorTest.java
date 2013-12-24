@@ -41,6 +41,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.utils.SonarException;
 import org.sonar.plugins.dotnet.api.DotNetResourceBridge;
 import org.sonar.plugins.dotnet.api.microsoft.MicrosoftWindowsEnvironment;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioProject;
@@ -69,7 +70,7 @@ public class FailingIssuesVisitorTest {
 
     final static String RESULT_FILE = "/solution/Example/resharper-results-example_sln.xml";
     File resultFile;
-    FailingIssuesVisitor failingIssuesVisitor;
+    FailingIssuesVisitorListener failingIssuesListener;
     
     @Before
     public void init() throws Exception {
@@ -135,8 +136,8 @@ public class FailingIssuesVisitorTest {
                 .setConfigKey("ReSharperInspectCode#Sonar.UnknownIssueType");
 
         ConfigureState(true, false, true);
-        failingIssuesVisitor = new FailingIssuesVisitor();
-        _parser.addVisitor(failingIssuesVisitor);
+        failingIssuesListener = new FailingIssuesVisitorListener();
+        _parser.addVisitor(failingIssuesListener);
     }
 	
     private void ConfigureState(boolean isSupported, boolean isExcluded, boolean propertyIncludeAllFiles) {
@@ -154,20 +155,21 @@ public class FailingIssuesVisitorTest {
     
 	@Test
 	public void GetVisitedWithIssuesThatDoNotFailTheAnalysis() {
-
-        failingIssuesVisitor.setIssueTypesToFailOn("CSharpErrors");
+        failingIssuesListener.setIssueTypesToFailOn("CSharpErrors");
         _parser.parse(resultFile);
-        int errors=failingIssuesVisitor.getErrorCount();
+        int errors=failingIssuesListener.getErrorCount();
         Assert.assertEquals("expect no errors", errors,0);
 	}
 	
 	@Test
 	public void GetVisitedWithIssuesThatDoFailTheAnalysis() {
-
-
-        failingIssuesVisitor.setIssueTypesToFailOn("SuggestUseVarKeywordEvident");
-        _parser.parse(resultFile);
-        int errors=failingIssuesVisitor.getErrorCount();
+        failingIssuesListener.setIssueTypesToFailOn("SuggestUseVarKeywordEvident");
+        try {
+        	_parser.parse(resultFile);
+        } catch ( SonarException e ) {
+        	// should get an exception here, as we get errors
+        }
+        int errors=failingIssuesListener.getErrorCount();
         Assert.assertEquals("expect five errors in example.application", 5,errors);
         
 	}
@@ -177,26 +179,37 @@ public class FailingIssuesVisitorTest {
 	 */
 	@Test
 	public void GetVisitedWithIssuesAndNoRulesSpecified() {
-        failingIssuesVisitor.setIssueTypesToFailOn("");
+        failingIssuesListener.setIssueTypesToFailOn("");
         _parser.parse(resultFile);
-        int errors=failingIssuesVisitor.getErrorCount();
+        int errors=failingIssuesListener.getErrorCount();
         Assert.assertEquals("expect no errors in example.application", 0,errors);
         
 	}
 	
+	/**
+	 * Test with a null string, you nevre know
+	 */
 	@Test
 	public void GetVisitedWithIssuesAndNullRulesSpecified() {
-        failingIssuesVisitor.setIssueTypesToFailOn(null);
+        failingIssuesListener.setIssueTypesToFailOn(null);
         _parser.parse(resultFile);
-        int errors=failingIssuesVisitor.getErrorCount();
+        int errors=failingIssuesListener.getErrorCount();
         Assert.assertEquals("expect no errors in example.application", 0,errors);
         
 	}
+	
+	/**
+	 * Specify two issuetypes to fail on
+	 */
 	@Test
 	public void GetVisitedWithTwoIssueTypesThatDoFailTheAnalysis() {
-        failingIssuesVisitor.setIssueTypesToFailOn("UnusedParameter.Local,ClassNeverInstantiated.Global");
-        _parser.parse(resultFile);
-        int errors=failingIssuesVisitor.getErrorCount();
+        failingIssuesListener.setIssueTypesToFailOn("UnusedParameter.Local,ClassNeverInstantiated.Global");
+        try {
+        	_parser.parse(resultFile);
+        } catch ( SonarException e ) {
+        	// should get an exception here, as we get errors
+        }
+        int errors=failingIssuesListener.getErrorCount();
         Assert.assertEquals("expect two errors in example.application", 2,errors);
 	}
 	

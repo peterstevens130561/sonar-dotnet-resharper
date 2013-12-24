@@ -26,7 +26,8 @@ import org.sonar.api.utils.SonarException;
 
 
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueModel;
-
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 public class FailOnIssuesTest {
 
 	static final String ERROR_TYPE = "CSharpErrors";
@@ -35,56 +36,71 @@ public class FailOnIssuesTest {
 		
 	}
 	
-	@Test
-	public void FailingIssue() {
-		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
-		failingIssueVisitor.setIssueTypesToFailOn(ERROR_TYPE);
-		IssueModel issue = new IssueModel();
-		issue.setId(ERROR_TYPE);
-		issue.setLine("1");
-		issue.setMessage("Compilation Error");
-		
-		failingIssueVisitor.visit(issue);
-		Assert.assertTrue(failingIssueVisitor.hasMatches());
-	}
 	
 	@Test
 	public void NonFailingIssue() {
-		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
-		failingIssueVisitor.setIssueTypesToFailOn(ERROR_TYPE);
-		IssueModel issue = new IssueModel();
-		issue.setId(ERROR_TYPE + "a");
-		issue.setLine("1");
-		issue.setMessage("Compilation Error");
+
+		ReSharperConfiguration configMock = createConfigurationMock();
+		
+		IssueModel issue = createNonFailingIssue();
+		
+		FailingIssuesVisitorListener failingIssueVisitor = parseIssue(
+				configMock, issue);
 		
 		Assert.assertFalse(failingIssueVisitor.hasMatches());
 	}
 	
 	@Test(expected=SonarException.class)
 	public void ThrowExceptionOnFailingIssueInResult() {
-		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
-		failingIssueVisitor.setIssueTypesToFailOn(ERROR_TYPE);
-		IssueModel issue = new IssueModel();
-		issue.setId(ERROR_TYPE);
-		issue.setLine("1");
-		issue.setMessage("Compilation Error");
+		ReSharperConfiguration configMock = createConfigurationMock();
+
+		IssueModel failingIssue = createFailingIssue();
+		parseIssue(configMock, failingIssue);
 		
-		failingIssueVisitor.visit(issue);
-		failingIssueVisitor.Check();
 		Assert.assertTrue("Should not get here",false);
 	}
-	
+
+
 	@Test
 	public void NoExceptionOnNoFailingIssues() {
-		FailingIssuesVisitor failingIssueVisitor = new FailingIssuesVisitor();
-		failingIssueVisitor.setIssueTypesToFailOn(ERROR_TYPE);
+		ReSharperConfiguration configMock = createConfigurationMock();
+		
+		IssueModel issue = createNonFailingIssue();
+		
+		FailingIssuesVisitorListener failingIssueVisitor = parseIssue(
+				configMock, issue);
+		
+		Assert.assertTrue("Should get here",true);
+	}
+
+	private IssueModel createNonFailingIssue() {
 		IssueModel issue = new IssueModel();
 		issue.setId(ERROR_TYPE + "a");
 		issue.setLine("1");
 		issue.setMessage("Compilation Error");
-		
-		failingIssueVisitor.visit(issue);
-		failingIssueVisitor.Check();
-		Assert.assertTrue("Should get here",true);
+		return issue;
+	}
+	
+	private ReSharperConfiguration createConfigurationMock() {
+		ReSharperConfiguration configMock = mock(ReSharperConfiguration.class);
+		when(configMock.getString(ReSharperConstants.FAIL_ON_ISSUES_KEY)).thenReturn(ERROR_TYPE);
+		return configMock;
+	}
+
+	private IssueModel createFailingIssue() {
+		IssueModel issue = new IssueModel();
+		issue.setId(ERROR_TYPE);
+		issue.setLine("1");
+		issue.setMessage("Compilation Error");
+		return issue;
+	}
+	
+	private FailingIssuesVisitorListener parseIssue(
+			ReSharperConfiguration configMock, IssueModel issue) {
+		FailingIssuesVisitorListener failingIssueVisitor = new FailingIssuesVisitorListener();
+		failingIssueVisitor.start(configMock);
+		failingIssueVisitor.parsedIssue(issue);
+		failingIssueVisitor.parsingComplete();
+		return failingIssueVisitor;
 	}
 }

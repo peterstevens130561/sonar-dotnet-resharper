@@ -42,7 +42,7 @@ import org.sonar.plugins.dotnet.api.utils.ResourceHelper;
 import org.sonar.plugins.dotnet.api.utils.StaxParserUtils;
 
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueModel;
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueVisitor;
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueListener;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.File;
@@ -74,7 +74,8 @@ public class ReSharperResultParser implements BatchExtension {
     private final static String issuesLink = "https://jira.codehaus.org/browse/SONARPLUGINS/component/16153";
     private final static String missingIssueTypesRuleKey = "ReSharperInspectCode#Sonar.UnknownIssueType";
     
-    private List<IssueVisitor> issueVisitors = new ArrayList<IssueVisitor>();
+    private final ReSharperConfiguration configuration;
+    private List<IssueListener> issueVisitors = new ArrayList<IssueListener>();
 
     /**
      * Constructs a @link{ReSharperResultParser}.
@@ -83,6 +84,7 @@ public class ReSharperResultParser implements BatchExtension {
         super();
 
         this.vsSolution = env.getCurrentSolution();
+        this.configuration=configuration;
         if (vsSolution == null) {
             // not a .NET project
             return;
@@ -98,9 +100,10 @@ public class ReSharperResultParser implements BatchExtension {
         repositoryKey = ReSharperConstants.REPOSITORY_KEY + "-" + projLanguage;
 
         includeAllFiles = configuration.getBoolean(ReSharperConstants.INCLUDE_ALL_FILES);
+
     }
 
-    public void addVisitor(IssueVisitor visitor) {
+    public void addVisitor(IssueListener visitor) {
     	issueVisitors.add(visitor);
     }
     /**
@@ -115,12 +118,13 @@ public class ReSharperResultParser implements BatchExtension {
         LOG.debug("Parsing " +  file.getAbsolutePath());
         FileInputStream fileInputStream = null;
         try {
+
             fileInputStream = new FileInputStream(file);
             SMHierarchicCursor cursor = inputFactory.rootElementCursor(new InputStreamReader(fileInputStream, project.getFileSystem().getSourceCharset()));
             SMInputCursor mainCursor = cursor.advance().childElementCursor();
 
             MissingIssueTypeHelper missingTypesHelper = new MissingIssueTypeHelper();
-
+            checkInVisitors();
             while (mainCursor.getNext() != null) {
 
                 String nodeName =mainCursor.getQName().getLocalPart();
@@ -143,6 +147,7 @@ public class ReSharperResultParser implements BatchExtension {
             throw new SonarException("Cannot find ReSharper result file: " + file.getAbsolutePath(), e);
         } finally {
             IOUtils.closeQuietly(fileInputStream);
+            checkOutVisitors();
         }
     }
 
@@ -290,9 +295,20 @@ public class ReSharperResultParser implements BatchExtension {
 
     }
     
+    private void checkInVisitors() {
+    	for(IssueListener issueVisitor : issueVisitors) {
+    		issueVisitor.start(configuration);
+    	}
+    }
     private void greetVisitors(IssueModel issue) {
-    	for(IssueVisitor issueVisitor : issueVisitors) {
-    		issueVisitor.visit(issue);
+    	for(IssueListener issueVisitor : issueVisitors) {
+    		issueVisitor.parsedIssue(issue);
+    	}
+    }
+    
+    private void checkOutVisitors() {
+    	for(IssueListener issueVisitor : issueVisitors) {
+    		issueVisitor.parsingComplete();
     	}
     }
 
