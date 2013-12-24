@@ -98,7 +98,7 @@ public class FailOnIssuesTest {
 	private FailingIssuesVisitorListener parseIssue(
 			ReSharperConfiguration configMock, IssueModel issue) {
 		FailingIssuesVisitorListener failingIssueVisitor = new FailingIssuesVisitorListener();
-		failingIssueVisitor.start(configMock);
+		failingIssueVisitor.parsingStart(configMock);
 		failingIssueVisitor.parsedIssue(issue);
 		failingIssueVisitor.parsingComplete();
 		return failingIssueVisitor;

@@ -137,7 +137,7 @@ public class FailingIssuesVisitorTest {
 
         ConfigureState(true, false, true);
         failingIssuesListener = new FailingIssuesVisitorListener();
-        _parser.addVisitor(failingIssuesListener);
+        _parser.addObserver(failingIssuesListener);
     }
 	
     private void ConfigureState(boolean isSupported, boolean isExcluded, boolean propertyIncludeAllFiles) {

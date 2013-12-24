@@ -85,7 +85,7 @@ public class FailingIssuesVisitorListener implements IssueListener {
 		}
 	}
 
-	public void start(ReSharperConfiguration configuration) {
+	public void parsingStart(ReSharperConfiguration configuration) {
 		String issueTypes=configuration.getString(ReSharperConstants.FAIL_ON_ISSUES_KEY);
 		LOG.debug(ReSharperConstants.FAIL_ON_ISSUES_KEY,issueTypes);
         setIssueTypesToFailOn(issueTypes);

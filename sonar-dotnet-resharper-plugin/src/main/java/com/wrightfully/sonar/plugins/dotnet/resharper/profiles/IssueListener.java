@@ -26,7 +26,7 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 
 public interface IssueListener {
 	
-	void start(ReSharperConfiguration configuration);
+	void parsingStart(ReSharperConfiguration configuration);
 	/**
 	 * Invoked for each issue in the project
 	 * @param issue

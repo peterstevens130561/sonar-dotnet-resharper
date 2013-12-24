@@ -75,7 +75,7 @@ public class ReSharperResultParser implements BatchExtension {
     private final static String missingIssueTypesRuleKey = "ReSharperInspectCode#Sonar.UnknownIssueType";
     
     private final ReSharperConfiguration configuration;
-    private List<IssueListener> issueVisitors = new ArrayList<IssueListener>();
+    private List<IssueListener> observers = new ArrayList<IssueListener>();
 
     /**
      * Constructs a @link{ReSharperResultParser}.
@@ -103,8 +103,13 @@ public class ReSharperResultParser implements BatchExtension {
 
     }
 
-    public void addVisitor(IssueListener visitor) {
-    	issueVisitors.add(visitor);
+    /**
+     * Add a listener to parsing events
+     * 
+     * @param issueListener instance of class implementing IssueListener
+     */
+    public void addObserver(IssueListener issueListener) {
+    	observers.add(issueListener);
     }
     /**
      * Parses a processed violation file.
@@ -296,19 +301,19 @@ public class ReSharperResultParser implements BatchExtension {
     }
     
     private void checkInVisitors() {
-    	for(IssueListener issueVisitor : issueVisitors) {
-    		issueVisitor.start(configuration);
+    	for(IssueListener issueListener : observers) {
+    		issueListener.parsingStart(configuration);
     	}
     }
     private void greetVisitors(IssueModel issue) {
-    	for(IssueListener issueVisitor : issueVisitors) {
-    		issueVisitor.parsedIssue(issue);
+    	for(IssueListener issueListener : observers) {
+    		issueListener.parsedIssue(issue);
     	}
     }
     
     private void checkOutVisitors() {
-    	for(IssueListener issueVisitor : issueVisitors) {
-    		issueVisitor.parsingComplete();
+    	for(IssueListener issueListener : observers) {
+    		issueListener.parsingComplete();
     	}
     }
 
