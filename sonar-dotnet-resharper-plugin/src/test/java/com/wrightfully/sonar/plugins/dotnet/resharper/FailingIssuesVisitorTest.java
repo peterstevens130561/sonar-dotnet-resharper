@@ -19,20 +19,30 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper;
 
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.List;
 
 import junit.framework.Assert;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
+import org.junit.runner.RunWith;
+
 import org.mockito.stubbing.Answer;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.resources.Project;
@@ -49,8 +59,20 @@ import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
 import org.sonar.plugins.dotnet.api.utils.ResourceHelper;
 import org.sonar.test.TestUtils;
 
-import com.google.common.collect.Lists;
+import ch.qos.logback.core.Appender;
+import ch.qos.logback.core.rolling.FixedWindowRollingPolicy;
+import ch.qos.logback.core.rolling.RollingFileAppender;
+import ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy;
+import ch.qos.logback.core.util.StatusPrinter;
 
+import org.slf4j.ILoggerFactory;
+import ch.qos.logback.classic.Logger;
+import org.slf4j.LoggerFactory;
+import com.google.common.collect.Lists;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.LoggingEvent;
+
+@RunWith(MockitoJUnitRunner.class)
 public class FailingIssuesVisitorTest {
 
     private SensorContext _context;
@@ -72,8 +94,16 @@ public class FailingIssuesVisitorTest {
     File resultFile;
     FailingIssuesVisitorListener failingIssuesListener;
     
+    // inspiration taken from http://bloodredsun.com/2010/12/09/checking-logging-in-unit-tests/
+    
+    @Mock
+    private Appender<LoggingEvent> mockAppender;
+    @Captor
+    private ArgumentCaptor<LoggingEvent> captorLoggingEvent;
+
     @Before
     public void init() throws Exception {
+
         _context = mock(SensorContext.class);
 
         _resourcesBridge = mock(DotNetResourceBridge.class);
@@ -140,6 +170,14 @@ public class FailingIssuesVisitorTest {
         _parser.addObserver(failingIssuesListener);
     }
 	
+
+    private void appendLogger() {
+    	 LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+        Logger log = loggerContext.getLogger(FailingIssuesVisitorListener.class);
+        mockAppender = mock(Appender.class);
+        log.addAppender(mockAppender);
+    }
+    
     private void ConfigureState(boolean isSupported, boolean isExcluded, boolean propertyIncludeAllFiles) {
 
         ReSharperConfiguration configuration = mock(ReSharperConfiguration.class);
@@ -161,19 +199,33 @@ public class FailingIssuesVisitorTest {
         Assert.assertEquals("expect no errors", errors,0);
 	}
 	
+	/**
+	 * Give the listener issues that do fail. Verify that the exception is thrown as well as
+	 * the generated logs
+	 */
 	@Test
-	public void GetVisitedWithIssuesThatDoFailTheAnalysis() {
-        failingIssuesListener.setIssueTypesToFailOn("SuggestUseVarKeywordEvident");
-        try {
-        	_parser.parse(resultFile);
-        } catch ( SonarException e ) {
-        	// should get an exception here, as we get errors
-        }
+	public void GetVisitedWithIssuesThatDoFailTheAnalysisCheckDump() {
+		appendLogger();
+		parseIssuesThatFail();    
+        checkDumpIsLogged();
         int errors=failingIssuesListener.getErrorCount();
         Assert.assertEquals("expect five errors in example.application", 5,errors);
         
 	}
-	
+
+
+	/**
+	 * Give the listener issues that do fail. Verify that the exception is thrown as well as
+	 * the generated logs
+	 */
+	@Test
+	public void GetVisitedWithIssuesThatDoFailTheAnalysis() {
+		parseIssuesThatFail();
+        int errors=failingIssuesListener.getErrorCount();
+        Assert.assertEquals("expect five errors in example.application", 5,errors);
+        
+	}
+
 	/**
 	 * Test the default situation
 	 */
@@ -253,4 +305,23 @@ public class FailingIssuesVisitorTest {
 	        return ruleFinder;
 	    }
 
+		private void parseIssuesThatFail() {
+			Boolean seenException=false;
+	        failingIssuesListener.setIssueTypesToFailOn("SuggestUseVarKeywordEvident");
+	        try {
+	        	_parser.parse(resultFile);
+	        } catch ( SonarException e ) {
+	        	seenException=true;
+	        }
+	        Assert.assertTrue("Expected SonarException",seenException);
+		}
+
+		private void checkDumpIsLogged() {
+			verify(mockAppender,times(2)).doAppend(captorLoggingEvent.capture());
+	        List<LoggingEvent> loggingEvents = captorLoggingEvent.getAllValues();
+	        LoggingEvent dump = loggingEvents.get(1);
+	        String lines[]=dump.getMessage().split("\n");
+	        Assert.assertEquals(5,lines.length);
+		}
+		
 }

@@ -35,6 +35,11 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueModel;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueListener;
 
 
+/**
+ * @author stevpet
+ * Listens to parsed issues, and if any of these match a set of issues on which the analysis should fail, 
+ * then at the end of the parsing a list of the issues found, and a SonarException is thrown to halt the analysis
+ */
 public class FailingIssuesVisitorListener implements IssueListener {
     private static final Logger LOG = LoggerFactory.getLogger(FailingIssuesVisitorListener.class);
     
@@ -42,6 +47,9 @@ public class FailingIssuesVisitorListener implements IssueListener {
     private List<IssueModel> issues =new ArrayList<IssueModel>();
     
 
+	/** 
+	 * @see com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueListener#parsedIssue(com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueModel)
+	 */
 	public void parsedIssue(IssueModel issue) {
 		if( issue == null) {
 			return ;
@@ -65,25 +73,52 @@ public class FailingIssuesVisitorListener implements IssueListener {
 	}
 
 	
+	/**
+	 * @return at least one issue found
+	 */
 	public Boolean hasMatches() {
 		return issues.size() > 0;
 	}
+	/**
+	 * @return number of issues found
+	 */
 	public int getErrorCount() {
 		return issues.size();
 	}
 
+	/* (non-Javadoc)
+	 * @see com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueListener#parsingComplete()
+	 */
 	public void parsingComplete() {
 		if(hasMatches()) {
-			String msg = String.format("found %d issues that will cause the analysis to fail, please address first. Showing first %d issues\n",issues.size(),10);
+			String msg = String.format("found %d issues that will cause the analysis to fail, please address first.\n",issues.size(),10);
 			LOG.error(msg);
+			String formattedIssues=formatIssues();
+			LOG.error(formattedIssues);
 			throw new SonarException("Issues found that fail the analysis, please check the log");
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueListener#parsingStart(com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration)
+	 */
 	public void parsingStart(ReSharperConfiguration configuration) {
 		String issueTypes=configuration.getString(ReSharperConstants.FAIL_ON_ISSUES_KEY);
 		LOG.debug(ReSharperConstants.FAIL_ON_ISSUES_KEY,issueTypes);
         setIssueTypesToFailOn(issueTypes);
+	}
+	
+	private String formatIssues() {
+		StringBuilder formattedIssues = new StringBuilder();
+		for(IssueModel issue: issues) {
+			String formattedIssue = formatIssue(issue);
+			formattedIssues.append(formattedIssue);
+		}
+		return formattedIssues.toString();
+	}
+	private String formatIssue(IssueModel issue) {
+		String msg = String.format("%s\t%s\t%s\t%s\n",issue.getFile(),issue.getLine(),issue.getId(),issue.getMessage());
+		return msg;
 	}
 
 }
