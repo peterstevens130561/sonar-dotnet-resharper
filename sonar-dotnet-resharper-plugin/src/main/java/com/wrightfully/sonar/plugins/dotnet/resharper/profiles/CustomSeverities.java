@@ -51,12 +51,7 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperUtils.Re
 /**
  * Creates ReSharper rule repositories for every language supported by ReSharper.
  */
-@Properties({
-        @Property(key = ReSharperConstants.CUSTOM_SEVERITIES_PROP_KEY,
-        defaultValue = "", name = "ReSharper custom severities",
-        description = "Add &lt;IssueType&gt; values from ReSharper's results file for issues that are not built-in to the plugin's rules. A restart is required to take affect.",
-                type = PropertyType.TEXT, global = true, project = false)
-})
+
 public class CustomSeverities {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomSeverities.class);

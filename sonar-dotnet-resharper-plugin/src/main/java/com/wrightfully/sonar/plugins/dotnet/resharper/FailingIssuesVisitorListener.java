@@ -34,12 +34,7 @@ import org.sonar.api.utils.SonarException;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueModel;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueListener;
 
-@Properties({
-    @Property(key = ReSharperConstants.FAIL_ON_ISSUES_KEY,
-    defaultValue = "CSharpError", name = "ReSharper issues to fail analysis on",
-    description = "Add IssueType values from ReSharper's results file for issues that should result in the analysis failing, i.e. CSharpErrors",
-            type = PropertyType.TEXT, global = true, project = false)
-})
+
 public class FailingIssuesVisitorListener implements IssueListener {
     private static final Logger LOG = LoggerFactory.getLogger(FailingIssuesVisitorListener.class);
     
