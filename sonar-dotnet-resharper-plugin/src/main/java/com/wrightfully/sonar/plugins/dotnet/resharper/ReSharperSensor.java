@@ -179,7 +179,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
     private void analyseResults(File reportFile) throws SonarException {
         if (reportFile.exists()) {
             LOG.debug("ReSharper report found at location" + reportFile);
-    		resharperResultParser.addObserver(new FailingIssuesVisitorListener());
+    		resharperResultParser.addObserver(new FailingIssueListener());
             resharperResultParser.parse(reportFile);
         } else {
             String msg = "No ReSharper report found for path " + reportFile;

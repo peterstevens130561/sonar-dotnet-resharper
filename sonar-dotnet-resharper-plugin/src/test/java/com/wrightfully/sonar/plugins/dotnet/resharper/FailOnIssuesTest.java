@@ -44,7 +44,7 @@ public class FailOnIssuesTest {
 		
 		IssueModel issue = createNonFailingIssue();
 		
-		FailingIssuesVisitorListener failingIssueVisitor = parseIssue(
+		FailingIssueListener failingIssueVisitor = parseIssue(
 				configMock, issue);
 		
 		Assert.assertFalse(failingIssueVisitor.hasMatches());
@@ -67,7 +67,7 @@ public class FailOnIssuesTest {
 		
 		IssueModel issue = createNonFailingIssue();
 		
-		FailingIssuesVisitorListener failingIssueVisitor = parseIssue(
+		FailingIssueListener failingIssueVisitor = parseIssue(
 				configMock, issue);
 		
 		Assert.assertTrue("Should get here",true);
@@ -95,9 +95,9 @@ public class FailOnIssuesTest {
 		return issue;
 	}
 	
-	private FailingIssuesVisitorListener parseIssue(
+	private FailingIssueListener parseIssue(
 			ReSharperConfiguration configMock, IssueModel issue) {
-		FailingIssuesVisitorListener failingIssueVisitor = new FailingIssuesVisitorListener();
+		FailingIssueListener failingIssueVisitor = new FailingIssueListener();
 		failingIssueVisitor.parsingStart(configMock);
 		failingIssueVisitor.parsedIssue(issue);
 		failingIssueVisitor.parsingComplete();
