@@ -23,7 +23,6 @@ package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
 import java.io.Reader;
 
 import java.io.StringReader;
-import java.util.Iterator;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
@@ -34,9 +33,7 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.PropertyType;
+
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
 import org.w3c.dom.NamedNodeMap;
@@ -45,7 +42,6 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
-import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperUtils.ReSharperSeverity;
 
 /**
@@ -126,15 +122,13 @@ public class CustomSeverities {
         	throw new ReSharperException("Invalid key, does not contain 8 or 9 segments seperated by / " + value + 
         			"\ncontains " + values.length + " elements" );
         }
-        String key=values[values.length-2];
-		return key;
+        return values[values.length-2];
 	}
 	
 	private RulePriority getRulePriority(Node node) {
         String severityText= node.getTextContent();
         ReSharperSeverity reSharperSeverity = ReSharperUtils.getResharperSeverity(severityText);
-        RulePriority sonarPriority=ReSharperUtils.translateResharperPriorityIntoSonarPriority(reSharperSeverity);
-        return sonarPriority;
+        return ReSharperUtils.translateResharperPriorityIntoSonarPriority(reSharperSeverity);
 	}
 	/**
 	 * Get the String nodes through the reader
@@ -174,9 +168,11 @@ public class CustomSeverities {
 	 * @param activeRule - the rule that will be changed
 	 */
     public void assignCustomSeverity(ActiveRule activeRule) {
+        if (severities == null) {
+        	return;
+        }
+        
         String ruleKey = activeRule.getRuleKey();
-        if (severities == null) return;
-
         if (severities.containsKey(ruleKey)) {
             RulePriority newPriority = severities.get(ruleKey);
             activeRule.setSeverity(newPriority);

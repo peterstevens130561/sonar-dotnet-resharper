@@ -40,28 +40,28 @@ public class IssueModel {
 	public IssueModel() {
 		// TODO Auto-generated constructor stub
 	}
-	public String getMessage() {
+	public final String getMessage() {
 		return message;
 	}
-	public void setMessage(String message) {
+	public final void setMessage(String message) {
 		this.message = message;
 	}
-	public String getFile() {
+	public final String getFile() {
 		return file;
 	}
-	public void setFile(String file) {
+	public final void setFile(String file) {
 		this.file = file;
 	}
-	public String getLine() {
+	public final String getLine() {
 		return line;
 	}
-	public void setLine(String line) {
+	public final void setLine(String line) {
 		this.line = line;
 	}
-	public String getId() {
+	public final String getId() {
 		return id;
 	}
-	public void setId(String id) {
+	public final void setId(String id) {
 		this.id = id;
 	}
 

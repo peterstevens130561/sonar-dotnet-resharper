@@ -176,9 +176,7 @@ public class FailingIssuesListenerTest {
 
         ReSharperConfiguration configuration = mock(ReSharperConfiguration.class);
         when(configuration.getBoolean(ReSharperConstants.INCLUDE_ALL_FILES)).thenReturn(propertyIncludeAllFiles);
-
         when(_context.isExcluded(any(Resource.class))).thenReturn(isExcluded);
-
         when(_vsProject.contains(any(File.class))).thenReturn(isSupported);
 
         _parser = new ReSharperResultParser(_env, _project, _context, newRuleFinder(), configuration);
@@ -204,7 +202,6 @@ public class FailingIssuesListenerTest {
         checkDumpIsLogged();
         int errors=failingIssuesListener.getErrorCount();
         Assert.assertEquals("expect five errors in example.application", 5,errors);
-        
 	}
 
 
@@ -293,7 +290,6 @@ public class FailingIssuesListenerTest {
 	                            .setConfigKey(query.getConfigKey());
 	                    return fakeRule;
 	                }
-
 	            }
 	        });
 	        return ruleFinder;
