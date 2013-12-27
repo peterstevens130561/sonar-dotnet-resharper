@@ -41,16 +41,14 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.api.utils.SonarException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
+import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils.ReSharperSeverity;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.InspectCodeNamespaceResolver;
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperUtils;
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperUtils.ReSharperSeverity;
 
 /**
  * Creates ReSharper rule repositories for every language supported by ReSharper. The class attempts to

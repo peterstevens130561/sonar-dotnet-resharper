@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
+package com.wrightfully.sonar.plugins.dotnet.resharper;
 
 import org.sonar.api.rules.RulePriority;
 import org.slf4j.Logger;
