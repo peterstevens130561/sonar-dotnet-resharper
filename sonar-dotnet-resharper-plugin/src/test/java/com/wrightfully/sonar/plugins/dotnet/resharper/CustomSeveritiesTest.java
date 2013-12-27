@@ -78,7 +78,7 @@ public class CustomSeveritiesTest {
 	public void GarbageShouldResultInEmptyMap() {
 		setPropertyValue("garbage");
 		CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
-		CustomSeveritiesMap map = customSeverities.parseString("garbage");
+		CustomSeveritiesMap map = customSeverities.parse();
 		Assert.assertEquals(0, map.size());		
 	}
 	

@@ -69,23 +69,12 @@ public class CustomSeverities implements Extension {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomSeverities.class);
     
-    private Reader reader;
+    private ReSharperConfiguration configuration ;
     CustomSeveritiesMap severities = new CustomSeveritiesMap();
 	
     public CustomSeverities(ReSharperConfiguration settingsMock) {
-    	String propertyValue=settingsMock.getString(ReSharperConstants.CUSTOM_SEVERITIES_PROP_KEY);
-    	if(propertyValue == null) {
-    		propertyValue = "";
-    	}
-       	reader = new StringReader(propertyValue);
+    	this.configuration = settingsMock;
     }
-    
-
-	public CustomSeverities setReader(Reader reader) {
-		this.reader = reader;
-		return this;
-	}
-	
 	
 	/**
 	 * Get a map indexed by rulekey, and severity as attribute
@@ -94,29 +83,18 @@ public class CustomSeverities implements Extension {
 	 * @throws ReSharperException 
 	 */
 	public CustomSeveritiesMap parse() {
-		severities = new CustomSeveritiesMap();
-		NodeList nodes=getStringNodes();
-		for(int nodeIndex=0;nodeIndex < nodes.getLength();nodeIndex++) {
-			Node node = nodes.item(nodeIndex);
-			addCustomSeverity(node);
-		}
+    	String propertyValue=configuration.getString(ReSharperConstants.CUSTOM_SEVERITIES_PROP_KEY);
+    	if(StringUtils.isNotEmpty(propertyValue)) {
+			NodeList nodes=getStringNodes(propertyValue);
+			for(int nodeIndex=0;nodeIndex < nodes.getLength();nodeIndex++) {
+				Node node = nodes.item(nodeIndex);
+				addCustomSeverity(node);
+			}
+    	}
 		return severities;
 	}
 
-    /**
-     * parse the given string, which is a xml document such as the resharper dotsettings file.
-     * If there is an error the error is logged, and an empty map is returned.
-     * @param customSeverities
-     * @return CustomSeveritiesMap
-     */
-    public CustomSeveritiesMap parseString(String customSeverities) {
-        severities = new CustomSeveritiesMap();
-        if (StringUtils.isNotEmpty(customSeverities)) {
-            setReader(new StringReader(customSeverities));
-            severities = parse();
-        }
-        return severities;
-    }
+
 
 	private void addCustomSeverity(Node node){
 		try {
@@ -156,10 +134,11 @@ public class CustomSeverities implements Extension {
 	 * Get the String nodes through the reader
 	 * @return list of string nodes
 	 */
-	private NodeList getStringNodes() {
+	private NodeList getStringNodes(String propertyValue) {
         XPath xpath = createXPathForInspectCode();
         NodeList nodes= new EmptyNodeList();
 		try {
+	       	StringReader reader = new StringReader(propertyValue);
 			InputSource source = new InputSource(reader);
 			nodes = (NodeList) xpath.evaluate("//s:String",source, XPathConstants.NODESET);
 		} catch (XPathExpressionException e) {
@@ -181,7 +160,6 @@ public class CustomSeverities implements Extension {
         XPath xpath = factory.newXPath();
         NamespaceContext inspectCodeNamespaceResolver = new InspectCodeNamespaceResolver();
         xpath.setNamespaceContext(inspectCodeNamespaceResolver);
-
 		return xpath;
 	}
 
