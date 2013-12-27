@@ -48,6 +48,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
+import com.wrightfully.sonar.plugins.dotnet.resharper.EmptyNodeList;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperUtils.ReSharperSeverity;
@@ -95,13 +96,10 @@ public class CustomSeverities implements Extension {
 	public CustomSeveritiesMap parse() {
 		severities = new CustomSeveritiesMap();
 		NodeList nodes=getStringNodes();
-		if(nodes !=null)
-		{
 		for(int nodeIndex=0;nodeIndex < nodes.getLength();nodeIndex++) {
 			Node node = nodes.item(nodeIndex);
 			addCustomSeverity(node);
 		}
-	}
 		return severities;
 	}
 
@@ -160,7 +158,7 @@ public class CustomSeverities implements Extension {
 	 */
 	private NodeList getStringNodes() {
         XPath xpath = createXPathForInspectCode();
-        NodeList nodes= null;
+        NodeList nodes= new EmptyNodeList();
 		try {
 			InputSource source = new InputSource(reader);
 			nodes = (NodeList) xpath.evaluate("//s:String",source, XPathConstants.NODESET);
