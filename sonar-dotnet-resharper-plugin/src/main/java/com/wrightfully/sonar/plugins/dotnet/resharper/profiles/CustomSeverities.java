@@ -34,6 +34,11 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.sonar.api.Extension;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
+import org.sonar.api.config.Settings;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
 import org.w3c.dom.NamedNodeMap;
@@ -42,19 +47,33 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
+import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperUtils.ReSharperSeverity;
 
 /**
- * Creates ReSharper rule repositories for every language supported by ReSharper.
+ * Creates ReSharper rule repositories for every language supported by ReSharper. The class attempts to
+ * contain all of its needs.
+ * 
+ * 
  */
+@Properties({
 
-public class CustomSeverities {
+    @Property(key = ReSharperConstants.CUSTOM_SEVERITIES_PROP_KEY,
+    defaultValue = "", name = "ReSharper custom severities",
+    description = "Add &lt;IssueType&gt; values from ReSharper's results file for issues that are not built-in to the plugin's rules. A restart is required to take affect.",
+            type = PropertyType.TEXT, global = true, project = false)
+})
+public class CustomSeverities implements Extension {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomSeverities.class);
     
     private Reader reader;
     CustomSeveritiesMap severities = new CustomSeveritiesMap();
 	
+    public CustomSeverities(Settings settings) {
+    	String propertyValue=settings.getString(ReSharperConstants.CUSTOM_SEVERITIES_PROP_KEY);
+    	reader = new StringReader(propertyValue);
+    }
 	public CustomSeverities setReader(Reader reader) {
 		this.reader = reader;
 		return this;
