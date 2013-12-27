@@ -27,6 +27,8 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.utils.ValidationMessages;
 
+import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
+import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 
 import java.io.InputStreamReader;
@@ -51,24 +53,19 @@ public class ReSharperSonarWayProfile extends ProfileDefinition {
         profile.setLanguage(languageKey);
         String profileName=getProfileName();
         profile.setName(profileName);
-        CustomSeverities customSeverities = getCustomSeveritiesFromSettings();
-        mergeCustomSeveritiesIntoProfile(profile, customSeverities);
+        mergeCustomSeveritiesIntoProfile(profile);
         return profile;
     }
 
-    private void mergeCustomSeveritiesIntoProfile(RulesProfile profile, CustomSeverities customSeverities) {
+    private void mergeCustomSeveritiesIntoProfile(RulesProfile profile) {
         List<ActiveRule> rules = profile.getActiveRules();
+        ReSharperConfiguration config = new ReSharperConfiguration(settings);
+        CustomSeverities customSeverities = new CustomSeverities(config);
+        customSeverities.parse();
         if (rules == null) return;
         for (ActiveRule activeRule : rules) {
             customSeverities.assignCustomSeverity(activeRule);
         }
-    }
-
-    private CustomSeverities getCustomSeveritiesFromSettings() {
-        String customSeveritiesSetting = settings.getString(ReSharperConstants.CUSTOM_SEVERITIES_PROP_KEY);
-        CustomSeverities customSeverities = new CustomSeverities();
-        customSeverities.parseString(customSeveritiesSetting);
-        return customSeverities;
     }
 
 

@@ -41,12 +41,14 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.utils.SonarException;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
+import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperUtils.ReSharperSeverity;
 
@@ -57,10 +59,9 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperUtils.Re
  * 
  */
 @Properties({
-
     @Property(key = ReSharperConstants.CUSTOM_SEVERITIES_PROP_KEY,
     defaultValue = "", name = "ReSharper custom severities",
-    description = "Add &lt;IssueType&gt; values from ReSharper's results file for issues that are not built-in to the plugin's rules. A restart is required to take affect.",
+    description = "Add &lt;IssueType&gt; values from ReSharper's custom definitions A restart is required to take affect.",
             type = PropertyType.TEXT, global = true, project = false)
 })
 public class CustomSeverities implements Extension {
@@ -70,10 +71,15 @@ public class CustomSeverities implements Extension {
     private Reader reader;
     CustomSeveritiesMap severities = new CustomSeveritiesMap();
 	
-    public CustomSeverities(Settings settings) {
-    	String propertyValue=settings.getString(ReSharperConstants.CUSTOM_SEVERITIES_PROP_KEY);
-    	reader = new StringReader(propertyValue);
+    public CustomSeverities(ReSharperConfiguration settingsMock) {
+    	String propertyValue=settingsMock.getString(ReSharperConstants.CUSTOM_SEVERITIES_PROP_KEY);
+    	if(propertyValue == null) {
+    		propertyValue = "";
+    	}
+       	reader = new StringReader(propertyValue);
     }
+    
+
 	public CustomSeverities setReader(Reader reader) {
 		this.reader = reader;
 		return this;
@@ -86,13 +92,16 @@ public class CustomSeverities implements Extension {
 	 * @throws XPathExpressionException
 	 * @throws ReSharperException 
 	 */
-	public CustomSeveritiesMap parse() throws ReSharperException {
+	public CustomSeveritiesMap parse() {
 		severities = new CustomSeveritiesMap();
 		NodeList nodes=getStringNodes();
+		if(nodes !=null)
+		{
 		for(int nodeIndex=0;nodeIndex < nodes.getLength();nodeIndex++) {
 			Node node = nodes.item(nodeIndex);
 			addCustomSeverity(node);
 		}
+	}
 		return severities;
 	}
 
@@ -106,11 +115,7 @@ public class CustomSeverities implements Extension {
         severities = new CustomSeveritiesMap();
         if (StringUtils.isNotEmpty(customSeverities)) {
             setReader(new StringReader(customSeverities));
-            try {
-                severities = parse();
-            } catch (ReSharperException e) {
-                LOG.error("Could not get custom severities, error during parsing (ignoring) " + e.getMessage(),e);
-            }
+            severities = parse();
         }
         return severities;
     }
@@ -152,17 +157,18 @@ public class CustomSeverities implements Extension {
 	/**
 	 * Get the String nodes through the reader
 	 * @return list of string nodes
-	 * @throws ReSharperException 
 	 */
-	private NodeList getStringNodes() throws ReSharperException  {
+	private NodeList getStringNodes() {
         XPath xpath = createXPathForInspectCode();
-        NodeList nodes;
+        NodeList nodes= null;
 		try {
 			InputSource source = new InputSource(reader);
 			nodes = (NodeList) xpath.evaluate("//s:String",source, XPathConstants.NODESET);
 		} catch (XPathExpressionException e) {
-			LOG.error("XPath failure, unexpected as expression is hardcoded",e);
-			throw new ReSharperException(e.getMessage());
+			// There are two cases that can cause this error
+			//1: invalid expression, which can't happen
+			//2: invalid source, which can happen with an empty string
+			LOG.debug("XPATH error (ignoring",e);
 		}
 		return nodes;
 	}
