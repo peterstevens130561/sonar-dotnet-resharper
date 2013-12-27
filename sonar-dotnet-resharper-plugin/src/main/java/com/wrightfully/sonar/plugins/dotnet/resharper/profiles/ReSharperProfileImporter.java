@@ -82,8 +82,9 @@ public class ReSharperProfileImporter extends ProfileImporter {
 //                   Description="Class is never instantiated: Non-private accessibility"
 //                   Severity="SUGGESTION" />
 
-
-        List<ReSharperRule> rules = ReSharperFileParser.parseRules(reader, messages);
+        ReSharperFileParser parser = new ReSharperFileParser();
+        parser.setMessages(messages);
+        List<ReSharperRule> rules = parser.parseRules(reader);
 
         for (ReSharperRule reSharperRule : rules) {
             String ruleName = reSharperRule.getId();

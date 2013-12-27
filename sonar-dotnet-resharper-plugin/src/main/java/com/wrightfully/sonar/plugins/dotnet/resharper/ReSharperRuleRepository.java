@@ -58,7 +58,8 @@ public class ReSharperRuleRepository extends RuleRepository {
         // ReSharper rules
         InputStream rulesFileStream = ReSharperRuleRepository.class.getResourceAsStream("/com/wrightfully/sonar/plugins/dotnet/resharper/rules/DefaultRules.ReSharper");
         Reader reader = new InputStreamReader(rulesFileStream);
-        List<ReSharperRule> reSharperRules = ReSharperFileParser.parseRules(reader);
+        ReSharperFileParser parser = new ReSharperFileParser();
+        List<ReSharperRule> reSharperRules = parser.parseRules(reader);
         for(ReSharperRule rRule: reSharperRules) {
             rules.add(rRule.toSonarRule());
         }
@@ -70,7 +71,7 @@ public class ReSharperRuleRepository extends RuleRepository {
                 String customRulesXml = "<Report><IssueTypes>" + customRules + "</IssueTypes></Report>";
 
                 Reader customRulesReader = new StringReader(customRulesXml);
-                List<ReSharperRule> customReSharperRules = ReSharperFileParser.parseRules(customRulesReader);
+                List<ReSharperRule> customReSharperRules = parser.parseRules(customRulesReader);
                 for(ReSharperRule rRule: customReSharperRules) {
                     //TODO: do i need to check if the rule has already been added?
                     rules.add(rRule.toSonarRule());

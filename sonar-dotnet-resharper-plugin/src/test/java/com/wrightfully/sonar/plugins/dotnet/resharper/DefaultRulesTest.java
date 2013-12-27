@@ -38,7 +38,8 @@ public class DefaultRulesTest {
     @Before
     public void init() {
         Reader fileReader = new InputStreamReader(getClass().getResourceAsStream("/com/wrightfully/sonar/plugins/dotnet/resharper/rules/DefaultRules.ReSharper"));
-        _rules = ReSharperFileParser.parseRules(fileReader);
+        ReSharperFileParser parser = new ReSharperFileParser();
+        _rules = parser.parseRules(fileReader);
     }
 
 

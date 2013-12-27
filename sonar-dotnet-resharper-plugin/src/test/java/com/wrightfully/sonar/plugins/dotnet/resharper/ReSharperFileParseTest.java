@@ -63,9 +63,11 @@ import static org.fest.assertions.Assertions.assertThat;
 
 
 public class ReSharperFileParseTest {
+	
+	ReSharperFileParser reSharperFileParser ;
     @Before
     public void init() {
-
+    	reSharperFileParser = new ReSharperFileParser();
     }
 
     @Test
@@ -77,7 +79,8 @@ public class ReSharperFileParseTest {
         ValidationMessages messages = ValidationMessages.create();
 
         //Act
-        List<ReSharperRule> results = ReSharperFileParser.parseRules(fakeFileReader, messages);
+        reSharperFileParser.setMessages(messages);
+        List<ReSharperRule> results = reSharperFileParser.parseRules(fakeFileReader);
 
         //Assert
         assertThat(results).isEmpty();
@@ -96,7 +99,8 @@ public class ReSharperFileParseTest {
         ValidationMessages messages = ValidationMessages.create();
 
         //Act
-        List<ReSharperRule> results = ReSharperFileParser.parseRules(fakeFileReader, messages);
+        reSharperFileParser.setMessages(messages);
+        List<ReSharperRule> results = reSharperFileParser.parseRules(fakeFileReader);
 
         //Assert
         assertThat(results).isEmpty();
@@ -115,7 +119,8 @@ public class ReSharperFileParseTest {
         ValidationMessages messages = ValidationMessages.create();
 
         //Act
-        List<ReSharperRule> results = ReSharperFileParser.parseRules(fakeFileReader, messages);
+        reSharperFileParser.setMessages(messages);
+        List<ReSharperRule> results = reSharperFileParser.parseRules(fakeFileReader);
 
         //Assert
         assertThat(results).isEmpty();
@@ -136,7 +141,8 @@ public class ReSharperFileParseTest {
         ValidationMessages messages = null;
 
         //Act
-        List<ReSharperRule> results = ReSharperFileParser.parseRules(fakeFileReader, messages);
+        reSharperFileParser.setMessages(messages);
+        List<ReSharperRule> results = reSharperFileParser.parseRules(fakeFileReader);
 
         //Assert
         assertThat(results).isEmpty();
@@ -155,7 +161,8 @@ public class ReSharperFileParseTest {
         ValidationMessages messages = ValidationMessages.create();
 
         //Act
-        List<ReSharperRule> results = ReSharperFileParser.parseRules(fakeFileReader, messages);
+        reSharperFileParser.setMessages(messages);
+        List<ReSharperRule> results = reSharperFileParser.parseRules(fakeFileReader);
 
         //Assert
         assertThat(results).hasSize(1);
@@ -183,7 +190,8 @@ public class ReSharperFileParseTest {
         ValidationMessages messages = ValidationMessages.create();
 
         //Act
-        List<ReSharperRule> results = ReSharperFileParser.parseRules(fakeFileReader, messages);
+        reSharperFileParser.setMessages(messages);
+        List<ReSharperRule> results = reSharperFileParser.parseRules(fakeFileReader);
 
         //Assert
         assertThat(results).hasSize(1);
@@ -211,7 +219,8 @@ public class ReSharperFileParseTest {
         ValidationMessages messages = ValidationMessages.create();
 
         //Act
-        List<ReSharperRule> results = ReSharperFileParser.parseRules(fakeFileReader, messages);
+        reSharperFileParser.setMessages(messages);
+        List<ReSharperRule> results = reSharperFileParser.parseRules(fakeFileReader);
 
         //Assert
         assertThat(results).hasSize(1);
@@ -240,7 +249,8 @@ public class ReSharperFileParseTest {
         ValidationMessages messages = ValidationMessages.create();
 
         //Act
-        List<ReSharperRule> results = ReSharperFileParser.parseRules(fakeFileReader, messages);
+        reSharperFileParser.setMessages(messages);
+        List<ReSharperRule> results = reSharperFileParser.parseRules(fakeFileReader);
 
         //Assert
         assertThat(results).hasSize(3);
