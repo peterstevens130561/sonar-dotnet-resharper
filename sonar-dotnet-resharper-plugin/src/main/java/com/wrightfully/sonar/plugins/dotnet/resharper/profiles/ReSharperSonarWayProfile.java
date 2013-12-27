@@ -28,6 +28,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.utils.ValidationMessages;
 
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
+import com.wrightfully.sonar.plugins.dotnet.resharper.CustomSeverities;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 

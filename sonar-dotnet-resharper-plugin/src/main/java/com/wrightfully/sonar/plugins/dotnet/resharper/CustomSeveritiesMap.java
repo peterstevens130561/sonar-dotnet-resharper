@@ -17,24 +17,15 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
+package com.wrightfully.sonar.plugins.dotnet.resharper;
 
-package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
+import java.util.HashMap;
+
+import org.sonar.api.rules.RulePriority;
 
 
-import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
+@SuppressWarnings("serial")
+public class CustomSeveritiesMap extends HashMap<String,RulePriority>{
 
 
-public interface IssueListener {
-	
-	void parsingStart(ReSharperConfiguration configuration);
-	/**
-	 * Invoked for each issue in the project
-	 * @param issue
-	 */
-	void parsedIssue(IssueModel issue);
-	
-	/**
-	 * Invoked at the end
-	 */
-	void parsingComplete() ;
 }

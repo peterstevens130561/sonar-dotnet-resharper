@@ -33,8 +33,6 @@ import org.sonar.api.rules.RulePriority;
 import junit.framework.Assert;
 
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.CustomSeverities;
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.CustomSeveritiesMap;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CustomSeveritiesTest {

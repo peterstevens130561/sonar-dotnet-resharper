@@ -17,7 +17,7 @@
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
  */
-package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
+package com.wrightfully.sonar.plugins.dotnet.resharper;
 
 
 import java.io.Reader;
@@ -48,9 +48,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
-import com.wrightfully.sonar.plugins.dotnet.resharper.EmptyNodeList;
-import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
-import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.InspectCodeNamespaceResolver;
+import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperUtils;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperUtils.ReSharperSeverity;
 
 /**

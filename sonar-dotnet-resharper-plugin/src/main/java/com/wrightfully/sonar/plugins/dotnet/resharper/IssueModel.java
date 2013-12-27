@@ -1,4 +1,4 @@
-package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
+package com.wrightfully.sonar.plugins.dotnet.resharper;
 
 import javax.xml.stream.XMLStreamException;
 

@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.sonar.api.utils.SonarException;
 
 
-import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.IssueModel;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 public class FailOnIssuesTest {
