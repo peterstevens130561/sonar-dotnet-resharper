@@ -123,6 +123,26 @@ public class ReSharperFileParseTest {
         assertThat(messages.getErrors()).containsOnly("No IssueType nodes found in profile file");
     }
 
+    /**
+     * Error situation with no messages defined
+     * @throws Exception
+     */
+    @Test
+    public void testFileWithNoIssueTypeNodesCreatesError2() throws Exception {
+
+        //Arrange
+        String badFileValue = "<Results><IssueTypes></IssueTypes></Results>";
+        Reader fakeFileReader = new StringReader(badFileValue);
+        ValidationMessages messages = null;
+
+        //Act
+        List<ReSharperRule> results = ReSharperFileParser.parseRules(fakeFileReader, messages);
+
+        //Assert
+        assertThat(results).isEmpty();
+        //assertThat(messages.hasErrors()).isTrue();
+        //assertThat(messages.getErrors()).containsOnly("No IssueType nodes found in profile file");
+    }
 
     @Test
     public void testSingleIssueTypeMappingWithWiki() throws Exception {
@@ -180,6 +200,33 @@ public class ReSharperFileParseTest {
 
     }
 
+    @Test
+    public void testSingleIssueTypeMappingWithInvalidSeverity() throws Exception {
+
+        //Arrange
+        String badFileValue = "<Results><IssueTypes>" +
+                "<IssueType Id=\"SuggestUseVarKeywordEvident\" Category=\"Language Usage Opportunities\" Description=\"Use 'var' keyword when initializer explicitly declares type\" Severity=\"INVALID\"  />" +
+                "</IssueTypes></Results>";
+        Reader fakeFileReader = new StringReader(badFileValue);
+        ValidationMessages messages = ValidationMessages.create();
+
+        //Act
+        List<ReSharperRule> results = ReSharperFileParser.parseRules(fakeFileReader, messages);
+
+        //Assert
+        assertThat(results).hasSize(1);
+        assertThat(messages.hasErrors()).isTrue();
+        assertThat(messages.hasWarnings()).isFalse();
+        assertThat(messages.hasInfos()).isFalse();
+
+        ReSharperRule rule = results.get(0);
+        assertThat(rule.getId()).isEqualTo("SuggestUseVarKeywordEvident");
+        assertThat(rule.getCategory()).isEqualTo("Language Usage Opportunities");
+        assertThat(rule.getDescription()).isEqualTo("Use 'var' keyword when initializer explicitly declares type");
+        assertThat(rule.getWikiLink()).isEqualTo("");
+        assertThat(rule.getSeverity()).isEqualTo(ReSharperSeverity.WARNING);
+
+    }
     @Test
     public void testMultipleIssueTypeMappingReturnsCorrectNumberOfRules() throws Exception {
 
