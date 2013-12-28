@@ -41,6 +41,9 @@ import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
 import org.sonar.plugins.dotnet.api.utils.ResourceHelper;
 import org.sonar.plugins.dotnet.api.utils.StaxParserUtils;
 
+import com.wrightfully.sonar.plugins.dotnet.resharper.failingissues.IssueListener;
+import com.wrightfully.sonar.plugins.dotnet.resharper.failingissues.IssueModel;
+
 
 import javax.xml.stream.XMLStreamException;
 import java.io.File;

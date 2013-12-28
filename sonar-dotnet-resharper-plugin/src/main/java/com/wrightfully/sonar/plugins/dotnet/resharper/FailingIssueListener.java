@@ -31,6 +31,9 @@ import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.utils.SonarException;
 
+import com.wrightfully.sonar.plugins.dotnet.resharper.failingissues.IssueListener;
+import com.wrightfully.sonar.plugins.dotnet.resharper.failingissues.IssueModel;
+
 
 
 /**
@@ -46,7 +49,7 @@ public class FailingIssueListener implements IssueListener {
     
 
 	/** 
-	 * @see com.wrightfully.sonar.plugins.dotnet.resharper.IssueListener#parsedIssue(com.wrightfully.sonar.plugins.dotnet.resharper.IssueModel)
+	 * @see com.wrightfully.sonar.plugins.dotnet.resharper.failingissues.IssueListener#parsedIssue(com.wrightfully.sonar.plugins.dotnet.resharper.failingissues.IssueModel)
 	 */
 	public void parsedIssue(IssueModel issue) {
 		if( issue == null) {
