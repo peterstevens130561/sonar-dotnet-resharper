@@ -53,7 +53,6 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.EmptyNodeList;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils.ReSharperSeverity;
-import com.wrightfully.sonar.plugins.dotnet.resharper.failingissues.InspectCodeNamespaceResolver;
 
 /**
  * Creates ReSharper rule repositories for every language supported by ReSharper. The class attempts to
