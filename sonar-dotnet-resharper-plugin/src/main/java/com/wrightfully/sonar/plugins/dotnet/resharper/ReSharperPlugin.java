@@ -21,7 +21,6 @@ package com.wrightfully.sonar.plugins.dotnet.resharper;
 
 import org.sonar.api.*;
 
-import com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeverities;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileExporter;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileImporter;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfileCSharp;
@@ -38,7 +37,7 @@ import java.util.List;
  * Main class of the ReSharper plugin.
  */
 @Properties({
-        @Property(key = ReSharperConstants.MODE, defaultValue = "", name = "ReSharper activation mode",
+    @Property(key = ReSharperConstants.MODE, defaultValue = "", name = "ReSharper activation mode",
                 description = "Possible values : empty (means active), 'skip' and 'reuseReport'.", global = false, project = false,
                 type = PropertyType.SINGLE_SELECT_LIST, options = {AbstractDotNetSensor.MODE_SKIP, AbstractDotNetSensor.MODE_REUSE_REPORT}),
         @Property(key = ReSharperConstants.REPORTS_PATH_KEY, defaultValue = "", name = "Path of the ReSharper report file(s)",

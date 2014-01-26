@@ -23,7 +23,6 @@ package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 
 import java.io.StringReader;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.xpath.XPath;
@@ -34,10 +33,6 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.Extension;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.PropertyType;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
@@ -73,7 +68,9 @@ public class CustomSeverities {
 	
 	public void mergeCustomSeverities(RulesProfile profile) {
         List<ActiveRule> rules = profile.getActiveRules();
-        if (rules == null) return;
+        if (rules == null) {
+            return;
+        }
         
         parseCustomSeverities();
         for (ActiveRule activeRule : rules) {
@@ -81,6 +78,10 @@ public class CustomSeverities {
         }		
 	}
 
+	/***
+	 * if a custom profilename is defined, use that one, otherwise assign the default
+	 * @param profile to get the name
+	 */
 	public void setProfileName(RulesProfile profile) {
         String profileName=getProfileName();
         profile.setName(profileName);
@@ -139,7 +140,7 @@ public class CustomSeverities {
         NamedNodeMap attributeMap=node.getAttributes();
         Node keyAttribute=attributeMap.getNamedItem("x:Key");
         String value=keyAttribute.getNodeValue();
-        String values[]=value.split("[/=]");
+        String[] values=value.split("[/=]");
         if(values.length !=8 && values.length !=9) {
         	throw new ReSharperException("Invalid key, does not contain 8 or 9 segments seperated by / " + value + 
         			"\ncontains " + values.length + " elements" );
