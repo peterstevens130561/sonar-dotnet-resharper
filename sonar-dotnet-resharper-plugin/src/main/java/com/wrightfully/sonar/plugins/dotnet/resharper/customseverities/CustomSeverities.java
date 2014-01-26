@@ -59,7 +59,8 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils.ReSharperSe
  * contain all of its needs.
  */
 @Properties({
-    @Property(key = CustomSeverities.PROPERTY_KEY,
+    @Property(
+    		key = CustomSeverities.PROPERTY_KEY,
     defaultValue = "", name = "ReSharper custom severities",
     description = "Add &lt;IssueType&gt; vales from ReSharper's custom definitions A restart is required to take affect.",
             type = PropertyType.TEXT, global = true, project = false),
@@ -67,9 +68,9 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils.ReSharperSe
     description = "Profile to which rules will be saved on restart, if profile does not exist",type=PropertyType.TEXT,global=true,project=false)
 })
 public class CustomSeverities implements Extension {
-	static final String PROPERTY_KEY = "sonar.resharper.customSeverities.definition";
-	static final String PROFILE_NAME = "sonar.resharper.profile";
-    static final String PROFILE_DEFVALUE="Sonar Way";
+	public static final String PROPERTY_KEY = "sonar.resharper.customSeverities.definition";
+	public static final String PROFILE_NAME = "sonar.resharper.profile";
+    public static final String PROFILE_DEFVALUE="Sonar Way";
     
     private static final Logger LOG = LoggerFactory.getLogger(CustomSeverities.class);
     

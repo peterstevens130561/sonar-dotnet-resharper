@@ -20,11 +20,15 @@
 package com.wrightfully.sonar.plugins.dotnet.resharper;
 
 import org.sonar.api.*;
+
+import com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeverities;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileExporter;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileImporter;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfileCSharp;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfileVbNet;
+
 import org.sonar.plugins.dotnet.api.sensor.AbstractDotNetSensor;
+
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 
 import java.util.ArrayList;
@@ -47,7 +51,14 @@ import java.util.List;
                 project = true, type = PropertyType.INTEGER),
         @Property(key = ReSharperConstants.INCLUDE_ALL_FILES, defaultValue = "true",
                 name = "ReSharper file inclusion mode", description = "Determines if violations are reported on any file (ignores filters and unsupported file types) or only those supported by the dotNet core plugin.", global = false,
-                project = false, type = PropertyType.BOOLEAN)
+                project = false, type = PropertyType.BOOLEAN),
+                @Property(
+                		key = CustomSeverities.PROPERTY_KEY,
+                defaultValue = "", name = "ReSharper custom severities",
+                description = "Add &lt;IssueType&gt; vales from ReSharper's custom definitions A restart is required to take affect.",
+                        type = PropertyType.TEXT, global = true, project = false),
+                @Property(key= CustomSeverities.PROFILE_NAME,defaultValue = "Sonar Way", name = "Profile",
+                description = "Profile to which rules will be saved on restart, if profile does not exist",type=PropertyType.TEXT,global=true,project=false)
 })
 public class ReSharperPlugin extends SonarPlugin {
 
