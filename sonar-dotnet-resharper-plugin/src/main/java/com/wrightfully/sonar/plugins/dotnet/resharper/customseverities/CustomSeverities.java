@@ -34,7 +34,6 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.sonar.api.Extension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
@@ -51,26 +50,13 @@ import org.xml.sax.InputSource;
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
 import com.wrightfully.sonar.plugins.dotnet.resharper.EmptyNodeList;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
+import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils.ReSharperSeverity;
 
-/**
- * Creates ReSharper rule repositories for every language supported by ReSharper. The class attempts to
- * contain all of its needs.
- */
-@Properties({
-    @Property(
-    		key = CustomSeverities.PROPERTY_KEY,
-    defaultValue = "", name = "ReSharper custom severities",
-    description = "Add &lt;IssueType&gt; vales from ReSharper's custom definitions A restart is required to take affect.",
-            type = PropertyType.TEXT, global = true, project = false),
-    @Property(key= CustomSeverities.PROFILE_NAME,defaultValue = "Sonar Way", name = "Profile",
-    description = "Profile to which rules will be saved on restart, if profile does not exist",type=PropertyType.TEXT,global=true,project=false)
-})
-public class CustomSeverities implements Extension {
-	public static final String PROPERTY_KEY = "sonar.resharper.customSeverities.definition";
-	public static final String PROFILE_NAME = "sonar.resharper.profile";
-    public static final String PROFILE_DEFVALUE="Sonar Way";
+
+public class CustomSeverities {
+
     
     private static final Logger LOG = LoggerFactory.getLogger(CustomSeverities.class);
     
@@ -101,8 +87,8 @@ public class CustomSeverities implements Extension {
 	}
 	
 	 private String getProfileName() {
-	    	String profileName=PROFILE_DEFVALUE;
-	    	String customName=configuration.getString(PROFILE_NAME);
+	    	String profileName=ReSharperConstants.PROFILE_DEFAULT;
+	    	String customName=configuration.getString(ReSharperConstants.PROFILE_NAME);
 	    	if(customName != null && customName.length()>0) {
 	    		profileName = customName;
 	    	} else {
@@ -119,7 +105,7 @@ public class CustomSeverities implements Extension {
 	 * @throws ReSharperException 
 	 */
 	public CustomSeveritiesMap parseCustomSeverities() {
-    	String propertyValue=configuration.getString(PROPERTY_KEY);
+    	String propertyValue=configuration.getString(ReSharperConstants.CUSTOM_SEVERITIES_DEFINITON);
     	if(StringUtils.isNotEmpty(propertyValue)) {
 			NodeList nodes=getStringNodes(propertyValue);
 			for(int nodeIndex=0;nodeIndex < nodes.getLength();nodeIndex++) {

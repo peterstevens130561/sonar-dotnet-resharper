@@ -53,11 +53,11 @@ import java.util.List;
                 name = "ReSharper file inclusion mode", description = "Determines if violations are reported on any file (ignores filters and unsupported file types) or only those supported by the dotNet core plugin.", global = false,
                 project = false, type = PropertyType.BOOLEAN),
                 @Property(
-                		key = CustomSeverities.PROPERTY_KEY,
+                		key = ReSharperConstants.CUSTOM_SEVERITIES_DEFINITON,
                 defaultValue = "", name = "ReSharper custom severities",
                 description = "Add &lt;IssueType&gt; vales from ReSharper's custom definitions A restart is required to take affect.",
                         type = PropertyType.TEXT, global = true, project = false),
-                @Property(key= CustomSeverities.PROFILE_NAME,defaultValue = "Sonar Way", name = "Profile",
+                @Property(key= ReSharperConstants.PROFILE_NAME,defaultValue = "Sonar Way", name = "Profile",
                 description = "Profile to which rules will be saved on restart, if profile does not exist",type=PropertyType.TEXT,global=true,project=false)
 })
 public class ReSharperPlugin extends SonarPlugin {

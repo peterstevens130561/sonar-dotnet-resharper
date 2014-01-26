@@ -47,4 +47,8 @@ public final class ReSharperConstants {
     public static final String CUSTOM_RULES_PROP_KEY = "sonar.resharper.customRules.definition";
 
     public static final String INCLUDE_ALL_FILES = "sonar.resharper.includeAllFiles";
+    
+	public static final String CUSTOM_SEVERITIES_DEFINITON = "sonar.resharper.customSeverities.definition";
+	public static final String PROFILE_NAME = "sonar.resharper.profile";
+    public static final String PROFILE_DEFAULT="Sonar Way";
 }
