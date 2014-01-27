@@ -19,6 +19,7 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
 
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.ValidationMessages;
@@ -27,8 +28,8 @@ import java.io.InputStreamReader;
 
 
 public final class ReSharperSonarWayProfileVbNet extends ReSharperSonarWayProfile {
-    public ReSharperSonarWayProfileVbNet(ReSharperProfileImporter.VbNetRegularReSharperProfileImporter profileImporter) {
-        super(profileImporter, "vbnet");
+    public ReSharperSonarWayProfileVbNet(ReSharperProfileImporter.VbNetRegularReSharperProfileImporter profileImporter,Settings settings) {
+        super(profileImporter, "vbnet",settings);
     }
 }
 

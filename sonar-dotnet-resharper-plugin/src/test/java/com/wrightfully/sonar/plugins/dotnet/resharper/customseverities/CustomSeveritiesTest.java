@@ -221,7 +221,6 @@ public class CustomSeveritiesTest {
         CustomSeverities customSeverities = new CustomSeverities(settingsMock);        
         customSeverities.mergeCustomSeverities(profileMock);
         Assert.assertEquals(RulePriority.BLOCKER, activeRule.getSeverity());
-        
 	}
 	
 	private ActiveRule createActiveRule() {

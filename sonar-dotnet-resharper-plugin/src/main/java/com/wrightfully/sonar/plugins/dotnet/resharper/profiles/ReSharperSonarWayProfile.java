@@ -19,27 +19,38 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper.profiles;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.utils.ValidationMessages;
 
+import com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeverities;
+
 import java.io.InputStreamReader;
 
-public class ReSharperSonarWayProfile extends ProfileDefinition {
 
+public class ReSharperSonarWayProfile extends ProfileDefinition {
+	
+    private static final Logger LOG = LoggerFactory.getLogger(ReSharperSonarWayProfile.class);
     private ReSharperProfileImporter profileImporter;
     private String languageKey;
-
-    protected ReSharperSonarWayProfile(ReSharperProfileImporter profileImporter, String languageKey) {
+    private Settings settings;
+    
+    protected ReSharperSonarWayProfile(ReSharperProfileImporter profileImporter, String languageKey,Settings settings) {
         this.profileImporter = profileImporter;
         this.languageKey = languageKey;
+        this.settings=settings;
     }
 
     public RulesProfile createProfile(ValidationMessages messages) {
         RulesProfile profile = profileImporter.importProfile(
                 new InputStreamReader(getClass().getResourceAsStream("/com/wrightfully/sonar/plugins/dotnet/resharper/rules/DefaultRules.ReSharper")), messages);
         profile.setLanguage(languageKey);
-        profile.setName("Sonar way");
+        CustomSeverities customSeverities = new CustomSeverities(settings);
+        profile.setName(customSeverities.getProfileName());
+        customSeverities.mergeCustomSeverities(profile);
         return profile;
     }
 

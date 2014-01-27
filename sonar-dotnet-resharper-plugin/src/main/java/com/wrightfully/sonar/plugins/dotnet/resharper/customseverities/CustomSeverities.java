@@ -78,16 +78,7 @@ public class CustomSeverities {
         }		
 	}
 
-	/***
-	 * if a custom profilename is defined, use that one, otherwise assign the default
-	 * @param profile to get the name
-	 */
-	public void setProfileName(RulesProfile profile) {
-        String profileName=getProfileName();
-        profile.setName(profileName);
-	}
-	
-	 private String getProfileName() {
+	 public String getProfileName() {
 	    	String profileName=ReSharperConstants.PROFILE_DEFAULT;
 	    	String customName=configuration.getString(ReSharperConstants.PROFILE_NAME);
 	    	if(customName != null && customName.length()>0) {
