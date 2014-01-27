@@ -56,7 +56,11 @@ public class CustomSeveritiesTest {
 	
 	ReSharperConfiguration settingsMock;
 
-	
+	@Before
+	public void beforeTest() {
+	    settingsMock = mock(ReSharperConfiguration.class);
+	    
+	}
 	/**
 	 * give the parser a null string, should be ok
 	 * @throws ReSharperException 
@@ -74,7 +78,6 @@ public class CustomSeveritiesTest {
 	 * 
 	 */
 	private void setPropertyValue(String value) {
-		settingsMock = mock(ReSharperConfiguration.class);
 		when(settingsMock.getString(ReSharperConstants.CUSTOM_SEVERITIES_DEFINITON)).thenReturn(value);
 	}
 	
@@ -159,6 +162,20 @@ public class CustomSeveritiesTest {
 		Assert.assertEquals(0, map.size());				
 	}
 	
+	   /**
+     * Lots of assumptions are made on the rules, check that an invalid key is survived
+     */
+    @Test
+    public void ParseCustomSeverities_TooManyPartsInKeyShouldBeIgnored() throws ReSharperException{
+        String invalidSeverity = "<s:String x:Key=\"/Default/ExtraPart/AnotherPart/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
+        String customList = header + invalidSeverity + footer;
+        setPropertyValue(customList);
+        
+        CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
+        CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
+        Assert.assertEquals(0, map.size());             
+    }
+	
 	@Test
 	public void NoCustomSeveritiesDefinedCheckThatActiveRuleIsNotChanged() throws ReSharperException{
 		String customSeverity = "<s:String x:Key=\"/Default/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
@@ -223,6 +240,7 @@ public class CustomSeveritiesTest {
         Assert.assertEquals(RulePriority.BLOCKER, activeRule.getSeverity());
 	}
 	
+
 	private ActiveRule createActiveRule() {
 	    ActiveRule activeRule = new ActiveRule();
 	    activeRule.setRule(createRule());
