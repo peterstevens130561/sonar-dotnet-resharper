@@ -53,13 +53,14 @@ public class CustomSeveritiesTest {
 	
 	final static String footer="</wpf:ResourceDictionary>";
 	
-	private ReSharperConfiguration settingsMock;
+	private Settings settingsMock;
 	private PropertyBasedCustomSeverities customSeverities;
 
 	@Before
 	public void beforeTest() {
-	    settingsMock = mock(ReSharperConfiguration.class);
-	    customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
+	    settingsMock = mock(Settings.class);
+	    customSeverities = new PropertyBasedCustomSeverities() ;
+	    customSeverities.setSettings(settingsMock);
 	    
 	}
 	/**
@@ -100,7 +101,6 @@ public class CustomSeveritiesTest {
 	public void InvalidXmlhouldBeOkToo() throws ReSharperException {
 		String emptyListWithInvalidXmlAtTheEnd = header + "</wpf>";
 		setPropertyValue(emptyListWithInvalidXmlAtTheEnd);
-		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(0, map.size());		
 	}
@@ -113,7 +113,6 @@ public class CustomSeveritiesTest {
 	public void ValidXmlWithNoContentShouldBeOkToo() throws ReSharperException {
 		String emptyList = header + footer;
 		setPropertyValue(emptyList);
-		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(0, map.size());		
 	}
@@ -127,7 +126,6 @@ public class CustomSeveritiesTest {
 		String customSeverity = "<s:String x:Key=\"/Default/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
 		String customList = header + customSeverity + footer;
 		setPropertyValue(customList);
-		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(1, map.size());				
 	}
@@ -138,7 +136,6 @@ public class CustomSeveritiesTest {
 	@Test
 	public void DuplicateCustomRuleShouldHaveOnlyOney()throws ReSharperException {
 		createCustomSeverityDefinition();
-		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(1, map.size());				
 	}
@@ -157,7 +154,6 @@ public class CustomSeveritiesTest {
 		String invalidSeverity = "<s:String x:Key=\"InvalidKey\">ERROR</s:String>";
 		String customList = header + invalidSeverity + footer;
 		setPropertyValue(customList);
-		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(0, map.size());				
 	}
@@ -170,8 +166,7 @@ public class CustomSeveritiesTest {
         String invalidSeverity = "<s:String x:Key=\"/Default/ExtraPart/AnotherPart/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
         String customList = header + invalidSeverity + footer;
         setPropertyValue(customList);
-        
-        PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
+
         CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
         Assert.assertEquals(0, map.size());             
     }
@@ -187,7 +182,6 @@ public class CustomSeveritiesTest {
 		rule.setSeverity(RulePriority.INFO);
 		ActiveRule activeRule = new ActiveRule(null,rule,null);
 
-		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		customSeverities.parseCustomSeverities();
 		customSeverities.assignCustomSeverity(activeRule);
 		Assert.assertEquals(RulePriority.INFO, activeRule.getSeverity());
@@ -201,7 +195,6 @@ public class CustomSeveritiesTest {
 		Rule rule = createRule();
 		ActiveRule activeRule = new ActiveRule(null,rule,null);
 
-		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		customSeverities.parseCustomSeverities();
 		customSeverities.assignCustomSeverity(activeRule);
 		Assert.assertEquals(RulePriority.BLOCKER, activeRule.getSeverity());
@@ -215,7 +208,6 @@ public class CustomSeveritiesTest {
 	 */
 	@Test
 	public void EmptyProfileShouldReturnWithoutException() {
-	    CustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock);
 	    RulesProfile profileMock = mock(RulesProfile.class);
 	    when(profileMock.getActiveRules()).thenReturn(null);
 	    customSeverities.mergeCustomSeverities(profileMock);
@@ -234,8 +226,7 @@ public class CustomSeveritiesTest {
         rules.add(activeRule);
         RulesProfile profileMock = mock(RulesProfile.class);
         when(profileMock.getActiveRules()).thenReturn(rules);
-        
-        CustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock);        
+    
         customSeverities.mergeCustomSeverities(profileMock);
         Assert.assertEquals(RulePriority.BLOCKER, activeRule.getSeverity());
 	}

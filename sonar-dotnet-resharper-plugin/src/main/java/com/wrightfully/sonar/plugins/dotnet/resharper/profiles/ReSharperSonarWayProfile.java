@@ -38,6 +38,7 @@ public class ReSharperSonarWayProfile extends ProfileDefinition {
     private ReSharperProfileImporter profileImporter;
     private String languageKey;
     private Settings settings;
+    private CustomSeverities customSeverities = new PropertyBasedCustomSeverities();
     
     protected ReSharperSonarWayProfile(ReSharperProfileImporter profileImporter, String languageKey,Settings settings) {
         this.profileImporter = profileImporter;
@@ -49,10 +50,14 @@ public class ReSharperSonarWayProfile extends ProfileDefinition {
         RulesProfile profile = profileImporter.importProfile(
                 new InputStreamReader(getClass().getResourceAsStream("/com/wrightfully/sonar/plugins/dotnet/resharper/rules/DefaultRules.ReSharper")), messages);
         profile.setLanguage(languageKey);
-        CustomSeverities customSeverities = new PropertyBasedCustomSeverities(settings);
+        customSeverities.setSettings(settings);
         profile.setName(customSeverities.getProfileName());
         customSeverities.mergeCustomSeverities(profile);
         return profile;
+    }
+
+    public void setCustomSeverities(CustomSeverities fakerCustomSeverities) {
+        customSeverities = fakerCustomSeverities;
     }
 
 }

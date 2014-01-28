@@ -58,14 +58,10 @@ public class PropertyBasedCustomSeverities implements CustomSeverities {
     private ReSharperConfiguration configuration ;
     CustomSeveritiesMap severities = new CustomSeveritiesMap();
 	
-    public PropertyBasedCustomSeverities(ReSharperConfiguration settingsMock) {
-    	this.configuration = settingsMock;
+    public PropertyBasedCustomSeverities() {
     }
 	
-	public PropertyBasedCustomSeverities(Settings settings) {
-		configuration = new ReSharperConfiguration(settings);
-	}
-	
+
 	/* (non-Javadoc)
      * @see com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeverities#mergeCustomSeverities(org.sonar.api.profiles.RulesProfile)
      */
@@ -205,4 +201,9 @@ public class PropertyBasedCustomSeverities implements CustomSeverities {
         return severities;
     }
 
-}
+
+    public void setSettings(Settings settings) {
+            configuration = new ReSharperConfiguration(settings);
+        }
+    }
+

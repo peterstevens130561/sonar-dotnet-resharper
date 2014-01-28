@@ -26,18 +26,26 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+
+
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import org.sonar.api.config.Settings;
 
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Settings.class)
 public class GetProfileNameTest {
 
-    private ReSharperConfiguration settingsMock;
+    private Settings settingsMock;
 
     @Before
     public void beforeTest() {
-        settingsMock = mock(ReSharperConfiguration.class);
-        
+        settingsMock = PowerMock.createMock(Settings.class);
     }
     
     @Test
@@ -57,8 +65,9 @@ public class GetProfileNameTest {
     }
    
     private void testGetProfileName(String expectedProfileName,String definedProfileName) {
-        when(settingsMock.getString(ReSharperConstants.PROFILE_NAME)).thenReturn(definedProfileName);
-        CustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock);    
+        CustomSeverities customSeverities = new PropertyBasedCustomSeverities();
+        customSeverities.setSettings(settingsMock);
+        when(settingsMock.getString(ReSharperConstants.PROFILE_NAME)).thenReturn(definedProfileName);  
         String actualProfileName=customSeverities.getProfileName();
         Assert.assertEquals(expectedProfileName,actualProfileName);
     }

@@ -122,6 +122,16 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+	    	<groupId>org.powermock</groupId>
+	    	<artifactId>powermock-module-junit4</artifactId>
+	    	<scope>test</scope>
+    	</dependency>
+    	   <dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-api-mockito</artifactId>
+				<scope>test</scope>
+		</dependency>
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>test</scope>
@@ -185,6 +195,7 @@
                 <artifactId>junit</artifactId>
                 <version>4.7</version>
             </dependency>
+                
             <dependency>
                 <groupId>org.easytesting</groupId>
                 <artifactId>fest-assert</artifactId>
@@ -200,6 +211,16 @@
                 <artifactId>mockito-all</artifactId>
                 <version>1.8.5</version>
             </dependency>
+            <dependency>
+    			<groupId>org.powermock</groupId>
+    			<artifactId>powermock-module-junit4</artifactId>
+    			<version>1.4.9</version>
+    		</dependency>
+    		<dependency>
+				<groupId>org.powermock</groupId>
+				<artifactId>powermock-api-mockito</artifactId>
+				<version>1.4.9</version>
+		</dependency>
             <dependency>
                 <groupId>org.apache.maven</groupId>
                 <artifactId>maven-core</artifactId>

@@ -37,6 +37,7 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
 
+import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileImporter;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfile;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfileCSharp;
@@ -59,8 +60,25 @@ public class CustomSeveritiesIntegrationTest {
         RulesProfile profile = new RulesProfile();
         when(profileImporter.importProfile(any(Reader.class),any(ValidationMessages.class))).thenReturn(profile);
         ReSharperSonarWayProfile profileCSharp = new ReSharperSonarWayProfileCSharp(profileImporter, settingsMock);
+        profileCSharp.setCustomSeverities(new FakerCustomSeverities());
         profileCSharp.createProfile(null);
         
+        
+    }
+    
+    private class FakerCustomSeverities implements CustomSeverities {
+
+        private boolean wasCalled = false;
+        public void mergeCustomSeverities(RulesProfile profile) {
+           wasCalled=true;         
+        }
+
+        public String getProfileName() {
+            return ReSharperConstants.PROFILE_DEFAULT;
+        }
+
+        public void setSettings(Settings settings) {
+        }
         
     }
 
