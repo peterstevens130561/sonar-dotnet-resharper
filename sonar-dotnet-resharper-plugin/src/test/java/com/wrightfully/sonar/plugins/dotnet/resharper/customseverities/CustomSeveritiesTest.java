@@ -40,7 +40,6 @@ import junit.framework.Assert;
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
-import com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeverities;
 import com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeveritiesMap;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -54,11 +53,13 @@ public class CustomSeveritiesTest {
 	
 	final static String footer="</wpf:ResourceDictionary>";
 	
-	ReSharperConfiguration settingsMock;
+	private ReSharperConfiguration settingsMock;
+	private PropertyBasedCustomSeverities customSeverities;
 
 	@Before
 	public void beforeTest() {
 	    settingsMock = mock(ReSharperConfiguration.class);
+	    customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 	    
 	}
 	/**
@@ -68,7 +69,6 @@ public class CustomSeveritiesTest {
 	@Test
 	public void EmptySeveritiesListShouldResultInEmptyMap() throws ReSharperException {
 		setPropertyValue(null);
-		CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(0, map.size());
 	}
@@ -87,7 +87,7 @@ public class CustomSeveritiesTest {
 	@Test
 	public void GarbageShouldResultInEmptyMap() {
 		setPropertyValue("garbage");
-		CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
+
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(0, map.size());		
 	}
@@ -100,7 +100,7 @@ public class CustomSeveritiesTest {
 	public void InvalidXmlhouldBeOkToo() throws ReSharperException {
 		String emptyListWithInvalidXmlAtTheEnd = header + "</wpf>";
 		setPropertyValue(emptyListWithInvalidXmlAtTheEnd);
-		CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
+		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(0, map.size());		
 	}
@@ -113,7 +113,7 @@ public class CustomSeveritiesTest {
 	public void ValidXmlWithNoContentShouldBeOkToo() throws ReSharperException {
 		String emptyList = header + footer;
 		setPropertyValue(emptyList);
-		CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
+		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(0, map.size());		
 	}
@@ -127,7 +127,7 @@ public class CustomSeveritiesTest {
 		String customSeverity = "<s:String x:Key=\"/Default/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
 		String customList = header + customSeverity + footer;
 		setPropertyValue(customList);
-		CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
+		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(1, map.size());				
 	}
@@ -138,7 +138,7 @@ public class CustomSeveritiesTest {
 	@Test
 	public void DuplicateCustomRuleShouldHaveOnlyOney()throws ReSharperException {
 		createCustomSeverityDefinition();
-		CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
+		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(1, map.size());				
 	}
@@ -157,7 +157,7 @@ public class CustomSeveritiesTest {
 		String invalidSeverity = "<s:String x:Key=\"InvalidKey\">ERROR</s:String>";
 		String customList = header + invalidSeverity + footer;
 		setPropertyValue(customList);
-		CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
+		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
 		Assert.assertEquals(0, map.size());				
 	}
@@ -171,7 +171,7 @@ public class CustomSeveritiesTest {
         String customList = header + invalidSeverity + footer;
         setPropertyValue(customList);
         
-        CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
+        PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
         CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
         Assert.assertEquals(0, map.size());             
     }
@@ -187,7 +187,7 @@ public class CustomSeveritiesTest {
 		rule.setSeverity(RulePriority.INFO);
 		ActiveRule activeRule = new ActiveRule(null,rule,null);
 
-		CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
+		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		customSeverities.parseCustomSeverities();
 		customSeverities.assignCustomSeverity(activeRule);
 		Assert.assertEquals(RulePriority.INFO, activeRule.getSeverity());
@@ -201,7 +201,7 @@ public class CustomSeveritiesTest {
 		Rule rule = createRule();
 		ActiveRule activeRule = new ActiveRule(null,rule,null);
 
-		CustomSeverities customSeverities = new CustomSeverities(settingsMock) ;
+		PropertyBasedCustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock) ;
 		customSeverities.parseCustomSeverities();
 		customSeverities.assignCustomSeverity(activeRule);
 		Assert.assertEquals(RulePriority.BLOCKER, activeRule.getSeverity());
@@ -215,7 +215,7 @@ public class CustomSeveritiesTest {
 	 */
 	@Test
 	public void EmptyProfileShouldReturnWithoutException() {
-	    CustomSeverities customSeverities = new CustomSeverities(settingsMock);
+	    CustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock);
 	    RulesProfile profileMock = mock(RulesProfile.class);
 	    when(profileMock.getActiveRules()).thenReturn(null);
 	    customSeverities.mergeCustomSeverities(profileMock);
@@ -235,7 +235,7 @@ public class CustomSeveritiesTest {
         RulesProfile profileMock = mock(RulesProfile.class);
         when(profileMock.getActiveRules()).thenReturn(rules);
         
-        CustomSeverities customSeverities = new CustomSeverities(settingsMock);        
+        CustomSeverities customSeverities = new PropertyBasedCustomSeverities(settingsMock);        
         customSeverities.mergeCustomSeverities(profileMock);
         Assert.assertEquals(RulePriority.BLOCKER, activeRule.getSeverity());
 	}
