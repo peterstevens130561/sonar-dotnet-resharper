@@ -19,8 +19,6 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import junit.framework.Assert;
 
@@ -28,13 +26,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
+import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.sonar.api.config.Settings;
 
-import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 
 @RunWith(PowerMockRunner.class)
@@ -45,7 +42,7 @@ public class GetProfileNameTest {
 
     @Before
     public void beforeTest() {
-        settingsMock = PowerMock.createMock(Settings.class);
+        settingsMock = PowerMockito.mock(Settings.class);
     }
     
     @Test

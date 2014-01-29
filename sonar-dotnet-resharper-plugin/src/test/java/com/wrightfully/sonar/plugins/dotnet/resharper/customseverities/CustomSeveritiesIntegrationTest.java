@@ -30,7 +30,11 @@ import java.io.Reader;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.internal.matchers.Any;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.RuleFinder;
@@ -42,14 +46,15 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileI
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfile;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfileCSharp;
 
-
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Settings.class)
 public class CustomSeveritiesIntegrationTest {
 
     private Settings settingsMock;
     
     @Before
-    public void before() {
-        settingsMock = mock(Settings.class);
+    public void beforeTest() {
+        settingsMock = PowerMockito.mock(Settings.class);
     }
     
     @Test

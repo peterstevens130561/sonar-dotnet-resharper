@@ -25,10 +25,10 @@ import org.sonar.api.profiles.RulesProfile;
 
 public interface CustomSeverities {
 
-    public abstract void mergeCustomSeverities(RulesProfile profile);
+    abstract void mergeCustomSeverities(RulesProfile profile);
 
-    public abstract String getProfileName();
+    abstract String getProfileName();
 
-    public abstract void setSettings(Settings settings);
+    abstract void setSettings(Settings settings);
 
 }

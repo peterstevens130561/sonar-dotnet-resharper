@@ -27,8 +27,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
@@ -42,7 +43,8 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 import com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeveritiesMap;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(Settings.class)
 public class CustomSeveritiesTest {
 	
 	final static String header= "<wpf:ResourceDictionary xml:space=\"preserve\" " +
@@ -58,7 +60,7 @@ public class CustomSeveritiesTest {
 
 	@Before
 	public void beforeTest() {
-	    settingsMock = mock(Settings.class);
+        settingsMock = PowerMockito.mock(Settings.class);
 	    customSeverities = new PropertyBasedCustomSeverities() ;
 	    customSeverities.setSettings(settingsMock);
 	    
