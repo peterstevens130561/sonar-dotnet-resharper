@@ -26,20 +26,29 @@ import org.mockito.Matchers;
 
 import static org.junit.Assert.*;
 
+import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
+import java.util.Collection;
+import java.util.List;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.internal.matchers.Any;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rules.ActiveRule;
+import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
+import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.test.TestUtils;
 
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileImporter;
@@ -47,44 +56,179 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWay
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfileCSharp;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(Settings.class)
+//@PrepareForTest(Settings.class ValidationMessages.class)
+@PrepareForTest({Settings.class,ValidationMessages.class})
 public class CustomSeveritiesIntegrationTest {
 
     private Settings settingsMock;
-    
+    private ValidationMessages messagesMock;
+    private String messages ; 
     @Before
     public void beforeTest() {
         settingsMock = PowerMockito.mock(Settings.class);
+        messagesMock = PowerMockito.mock(ValidationMessages.class);
+        //mockValidationMessages();
     }
+
+
     
     @Test
-    public void createProfileTest_NothingDefinedShouldWork() {
+    public void createProfileTest_ProfileSetNoCustomSeverities_ProfileShouldBeNamedAccordingly() {
+        //Given a profile set to booh, and no defined custom severities
+        String profileName="booh";
         RuleFinder finder = mock(RuleFinder.class);
         when(finder.find((RuleQuery) org.mockito.Matchers.anyObject())).thenReturn(null);
         ReSharperProfileImporter.CSharpRegularReSharperProfileImporter profileImporter = mock(ReSharperProfileImporter.CSharpRegularReSharperProfileImporter.class);
         RulesProfile profile = new RulesProfile();
         when(profileImporter.importProfile(any(Reader.class),any(ValidationMessages.class))).thenReturn(profile);
+        setSetting(ReSharperConstants.PROFILE_NAME,profileName);
         ReSharperSonarWayProfile profileCSharp = new ReSharperSonarWayProfileCSharp(profileImporter, settingsMock);
-        profileCSharp.setCustomSeverities(new FakerCustomSeverities());
-        profileCSharp.createProfile(null);
+        //When creating the profile
+        RulesProfile actualProfile=profileCSharp.createProfile(messagesMock);
         
+        //Then the profile should have name booh, and no messages should be logged
+        assertEquals(profileName,actualProfile.getName());   
+        assertNoMessages();
+    }
+
+
+
+
+    @Test
+    public void createProfileTest_ProfileNotSetNoCustomSeverityes_ProfileShouldBeDefault() {
+        //Given a profile set to booh, and no defined custom severities
+        RuleFinder finder = mock(RuleFinder.class);
+        when(finder.find((RuleQuery) org.mockito.Matchers.anyObject())).thenReturn(null);
+        ReSharperProfileImporter.CSharpRegularReSharperProfileImporter profileImporter = mock(ReSharperProfileImporter.CSharpRegularReSharperProfileImporter.class);
+        RulesProfile profile = new RulesProfile();
+        when(profileImporter.importProfile(any(Reader.class),any(ValidationMessages.class))).thenReturn(profile);
+
+        ReSharperSonarWayProfile profileCSharp = new ReSharperSonarWayProfileCSharp(profileImporter, settingsMock);
+        //When creating the profile
+        RulesProfile actualProfile=profileCSharp.createProfile(messagesMock);
+        
+        //Then the profile should have name booh, and no messages should be logged
+        assertEquals(ReSharperConstants.PROFILE_DEFAULT,actualProfile.getName());
+        
+        assertNoMessages();       
+    }
+    
+  
+    @Test
+    public void createProfileTest_NoCustomSeverities_ShouldHaveDefaultRules() {
+        ReSharperSonarWayProfile profileCSharp = prepareProfiler();
+        //When creating the profile
+        RulesProfile actualProfile=profileCSharp.createProfile(messagesMock);
+        
+        //Then the profile should have name booh, and no messages should be logged, and there should be 650 rules
+        //unless more rules were added
+        int activeRuleSize=actualProfile.getActiveRules().size();
+        assertEquals(650,activeRuleSize);
+        assertNoMessages();       
+    }
+    
+  
+    @Test
+    public void createProfileTest_CustomSeverities_ShouldHaveSeverityChanges() throws IOException {
+        //Given a profile set to booh, and no defined custom severities, and assuming all rules are present
+        ReSharperSonarWayProfile profileCSharp = prepareProfiler();
+
+        //When creating the profile without and with the custom severities
+        RulesProfile defaultProfile=profileCSharp.createProfile(messagesMock);
+        setCustomSeveritiesProperty("DotSettings.xml");    
+        RulesProfile customProfile=profileCSharp.createProfile(messagesMock);
+        
+        //Then there should be differences
+        int severityDifferences = getSeverityDifferencesCount(defaultProfile,customProfile);
+        assertEquals(72,severityDifferences);
+    }
+
+
+
+    private ReSharperSonarWayProfile prepareProfiler() {
+        RuleFinder ruleFinder = new SimpleRuleFinder();
+        ReSharperProfileImporter.CSharpRegularReSharperProfileImporter profileImporter = new ReSharperProfileImporter.CSharpRegularReSharperProfileImporter(ruleFinder);
+
+        ReSharperSonarWayProfile profileCSharp = new ReSharperSonarWayProfileCSharp(profileImporter, settingsMock);
+        return profileCSharp;
+    }   
+    
+    private int getSeverityDifferencesCount(RulesProfile defaultProfile,
+            RulesProfile customProfile) {
+        List<ActiveRule> defaultRules=defaultProfile.getActiveRules();
+        List<ActiveRule> customRules=customProfile.getActiveRules();
+        int differences=0;
+        
+        for(int i=0;i<defaultRules.size();i++) {
+            RulePriority defaultPriority =defaultRules.get(i).getSeverity();
+            RulePriority customPriority = customRules.get(i).getSeverity();
+            if(!defaultPriority.equals(customPriority)) {
+                differences +=1;
+            }
+        }
+        return differences;
+        
+    }
+
+
+
+    private void setCustomSeveritiesProperty(String file) throws IOException {
+        // TODO Auto-generated method stub
+        Reader reader = new StringReader(TestUtils.getResourceContent("/CustomSeverities/" + file ));
+        String myString = IOUtils.toString(reader);
+        setSetting(ReSharperConstants.CUSTOM_SEVERITIES_DEFINITON,myString);
+    }
+
+
+
+    private void assertNoMessages() {
+        verify(messagesMock,never()).addErrorText(anyString());
+        verify(messagesMock,never()).addWarningText(anyString());
+        verify(messagesMock,never()).addInfoText(anyString());
+    }
+    
+    /***
+     * add setting to the mock
+     * @param key of the property
+     * @param value of the property
+     */
+    private void setSetting(String key,String value) {
+        when(settingsMock.getString(key)).thenReturn(value);
+    }
+    
+    private void mockValidationMessages() {
+        messagesMock = PowerMockito.mock(ValidationMessages.class);
+        when(messagesMock.addWarningText(anyString())).thenReturn(messagesMock);
+        when(messagesMock.addErrorText(anyString())).thenReturn(messagesMock);
+        when(messagesMock.addInfoText(anyString())).thenReturn(messagesMock);
+
+    }
+    
+
+    private class SimpleRuleFinder implements RuleFinder {
+
+        public Rule findById(int ruleId) {
+            throw new NotImplementedException();
+        }
+
+        public Rule findByKey(String repositoryKey, String key) {
+            throw new NotImplementedException();
+        }
+
+        /***
+         * As all rules are added in the repository part, we can just return a rule
+         */
+        public Rule find(RuleQuery query) {
+            Rule rule = new Rule() ;
+            rule.setKey(query.getKey());
+            return rule;
+        }
+        public Collection<Rule> findAll(RuleQuery query) {
+            throw new NotImplementedException();
+        }
         
     }
     
-    private class FakerCustomSeverities implements CustomSeverities {
-
-        private boolean wasCalled = false;
-        public void mergeCustomSeverities(RulesProfile profile) {
-           wasCalled=true;         
-        }
-
-        public String getProfileName() {
-            return ReSharperConstants.PROFILE_DEFAULT;
-        }
-
-        public void setSettings(Settings settings) {
-        }
-        
-    }
+    
 
 }
