@@ -54,10 +54,10 @@ import java.util.List;
                 @Property(
                 		key = ReSharperConstants.CUSTOM_SEVERITIES_DEFINITON,
                 defaultValue = "", name = "ReSharper custom severities",
-                description = "Add &lt;IssueType&gt; vales from ReSharper's custom definitions A restart is required to take affect.",
+                description = "Add &lt;String&gt; vales from ReSharper's custom definitions (including &lt:wpf:ResourceDictionary&gt;) A restart is required to take affect.",
                         type = PropertyType.TEXT, global = true, project = false),
-                @Property(key= ReSharperConstants.PROFILE_NAME,defaultValue = "Sonar Way", name = "Profile",
-                description = "Profile to which rules will be saved on restart, if profile does not exist",type=PropertyType.TEXT,global=true,project=false)
+                @Property(key= ReSharperConstants.PROFILE_NAME,defaultValue = ReSharperConstants.PROFILE_DEFAULT, name = "Profile",
+                description = "Profile to which rules will be saved on restart, if profile does not exist",type=PropertyType.STRING,global=true,project=false)
 })
 public class ReSharperPlugin extends SonarPlugin {
 

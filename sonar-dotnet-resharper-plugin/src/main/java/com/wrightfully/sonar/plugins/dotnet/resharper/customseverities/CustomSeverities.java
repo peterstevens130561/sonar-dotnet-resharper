@@ -22,13 +22,19 @@ package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
-
+/**
+ * Usage:
+ * CustomSeverities customSeverities = new Your_Implementation(profile);
+ * customSeverities.setSettings(settings);
+ * profile.setName(customSeverities.getProfileName());
+ * customSeverities.mergeCustomSeverities(profile);
+ */
 public interface CustomSeverities {
 
-    abstract void mergeCustomSeverities(RulesProfile profile);
+    void mergeCustomSeverities(RulesProfile profile);
 
-    abstract String getProfileName();
+    String getProfileName();
 
-    abstract void setSettings(Settings settings);
+    void setSettings(Settings settings);
 
 }

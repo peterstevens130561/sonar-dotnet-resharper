@@ -30,12 +30,10 @@ public class InspectCodeNamespaceResolver implements NamespaceContext {
 	}
 
 	public String getPrefix(String namespaceURI) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public Iterator<?> getPrefixes(String namespaceURI) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
