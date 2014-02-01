@@ -50,13 +50,11 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils.ReSharperSeverity;
 
 
-public class PropertyBasedCustomSeverities implements CustomSeverities {
+public class PropertyBasedCustomSeverities extends BaseCustomSeverities {
 
     
     private static final Logger LOG = LoggerFactory.getLogger(PropertyBasedCustomSeverities.class);
     
-    private ReSharperConfiguration configuration ;
-    CustomSeveritiesMap severities = new CustomSeveritiesMap();
 	
     public PropertyBasedCustomSeverities() {
     }
@@ -77,21 +75,7 @@ public class PropertyBasedCustomSeverities implements CustomSeverities {
         }		
 	}
 
-	 /* (non-Javadoc)
-     * @see com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeverities#getProfileName()
-     */
-	public String getProfileName() {
-	    	String profileName=ReSharperConstants.PROFILE_DEFAULT;
-	    	String customName=configuration.getString(ReSharperConstants.PROFILE_NAME);
-	    	if(customName != null && customName.length()>0) {
-	    		profileName = customName;
-	    	} else {
-	    		LOG.warn("No profile defined for resharper, using default");
-	    	}
-	    		
-	    	LOG.debug("Using profile " + profileName);
-	    	return profileName;
-	    }
+
 	/**
 	 * Get a map indexed by rulekey, and severity as attribute
 	 * @return
@@ -99,7 +83,7 @@ public class PropertyBasedCustomSeverities implements CustomSeverities {
 	 * @throws ReSharperException 
 	 */
 	public CustomSeveritiesMap parseCustomSeverities() {
-    	String propertyValue=configuration.getString(ReSharperConstants.CUSTOM_SEVERITIES_DEFINITON);
+    	String propertyValue=getConfiguration().getString(ReSharperConstants.CUSTOM_SEVERITIES_DEFINITON);
     	if(StringUtils.isNotEmpty(propertyValue)) {
 			NodeList nodes=getStringNodes(propertyValue);
 			for(int nodeIndex=0;nodeIndex < nodes.getLength();nodeIndex++) {
@@ -112,40 +96,7 @@ public class PropertyBasedCustomSeverities implements CustomSeverities {
 
 
 
-	private void addCustomSeverity(Node node){
-		try {
-			tryAddCustomSeverity(node);
-		} catch(ReSharperException e) {
-			LOG.error("Failed to add CustomSeverity on Node " + node + "\nmessage:" + e.getMessage(),e);
-		}
-	}
- 	private void tryAddCustomSeverity(Node node) throws ReSharperException  {
-		String key = getKey(node);
-		RulePriority priority= getRulePriority(node);
-		if (severities.containsKey(key)) {
-			LOG.warn("duplicate entry for " + key);
-		} else {
-			severities.put(key, priority);
-		}
-	}
 	
-	private String getKey(Node node) throws ReSharperException  {
-        NamedNodeMap attributeMap=node.getAttributes();
-        Node keyAttribute=attributeMap.getNamedItem("x:Key");
-        String value=keyAttribute.getNodeValue();
-        String[] values=value.split("[/=]");
-        if(values.length !=8 && values.length !=9) {
-        	throw new ReSharperException("Invalid key, does not contain 8 or 9 segments seperated by / " + value + 
-        			"\ncontains " + values.length + " elements" );
-        }
-        return values[values.length-2];
-	}
-	
-	private RulePriority getRulePriority(Node node) {
-        String severityText= node.getTextContent();
-        ReSharperSeverity reSharperSeverity = ReSharperUtils.getResharperSeverity(severityText);
-        return ReSharperUtils.translateResharperPriorityIntoSonarPriority(reSharperSeverity);
-	}
 	/**
 	 * Get the String nodes through the reader
 	 * @return list of string nodes
@@ -203,7 +154,7 @@ public class PropertyBasedCustomSeverities implements CustomSeverities {
 
 
     public void setSettings(Settings settings) {
-            configuration = new ReSharperConfiguration(settings);
+            setConfiguration(new ReSharperConfiguration(settings));
         }
     }
 
