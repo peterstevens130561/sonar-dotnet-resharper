@@ -19,28 +19,27 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 
+import org.sonar.api.config.Settings;
+import org.sonar.api.profiles.RulesProfile;
 
-
-import java.io.StringReader;
-import org.apache.commons.lang.StringUtils;
-import org.xml.sax.InputSource;
-
-import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
-
-
-
-public class PropertyBasedCustomSeverities extends BaseCustomSeverities {
-
-    @Override
-    protected InputSource createInputSource() {
-        String propertyValue=getConfiguration().getString(ReSharperConstants.CUSTOM_SEVERITIES_DEFINITON);
-        InputSource source = null;
-        if(StringUtils.isNotEmpty(propertyValue)) {
-            StringReader reader = new StringReader(propertyValue);
-            source = new InputSource(reader);
+public class AllCustomSeveritiesProvidersMerger {
+    CustomSeverities[] customSeveritiesMergers = { new FileCustomSeverities(), new PropertyBasedCustomSeverities() };
+    private Settings settings;
+    private RulesProfile profile;
+    
+    public void merge() {
+        for(CustomSeverities merger : customSeveritiesMergers ) {
+            merger.setSettings(settings);
+            merger.mergeCustomSeverities(profile);
         }
-        return source;
     }
-	
-}
 
+    public void setSettings(Settings settings) {
+        this.settings = settings;
+    }
+
+    public void setProfile(RulesProfile profile) {
+        this.profile = profile;        
+    }
+    
+}

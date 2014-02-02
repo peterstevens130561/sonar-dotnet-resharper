@@ -19,7 +19,6 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 
-import java.io.StringReader;
 import java.util.List;
 
 import javax.xml.namespace.NamespaceContext;
@@ -28,7 +27,6 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
@@ -79,12 +77,19 @@ public abstract class BaseCustomSeverities implements CustomSeverities {
        if (rules == null) {
            return;
        }
-       
-       parseCustomSeverities();
-       for (ActiveRule activeRule : rules) {
-           assignCustomSeverity(activeRule);
-       }       
+       InputSource source = createInputSource();
+       if (source ==null) {
+           return;
+       }
+       parseCustomSeverities(source);
+       assignCustomSeverities(rules);
    }
+
+private void assignCustomSeverities(List<ActiveRule> rules) {
+    for (ActiveRule activeRule : rules) {
+           assignCustomSeverity(activeRule);
+       }
+}
 
 
    /**
@@ -93,8 +98,8 @@ public abstract class BaseCustomSeverities implements CustomSeverities {
     * @throws XPathExpressionException
     * @throws ReSharperException 
     */
-   public CustomSeveritiesMap parseCustomSeverities() {
-       InputSource source = createInputSource();
+   protected CustomSeveritiesMap parseCustomSeverities(InputSource source) {
+
        if(source!=null) {
            NodeList nodes=getStringNodes(source);
            for(int nodeIndex=0;nodeIndex < nodes.getLength();nodeIndex++) {

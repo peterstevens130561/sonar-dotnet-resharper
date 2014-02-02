@@ -19,8 +19,12 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 import static org.mockito.Mockito.mock;
+
+import org.xml.sax.InputSource;
+
 import static org.mockito.Mockito.when;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,12 +60,12 @@ public class CustomSeveritiesTest {
 	final static String footer="</wpf:ResourceDictionary>";
 	
 	private Settings settingsMock;
-	private PropertyBasedCustomSeverities customSeverities;
+	private CustomSeveritiesStub customSeverities;
 
 	@Before
 	public void beforeTest() {
         settingsMock = PowerMockito.mock(Settings.class);
-	    customSeverities = new PropertyBasedCustomSeverities() ;
+	    customSeverities = new CustomSeveritiesStub() ;
 	    customSeverities.setSettings(settingsMock);
 	    
 	}
@@ -71,8 +75,7 @@ public class CustomSeveritiesTest {
 	 */
 	@Test
 	public void EmptySeveritiesListShouldResultInEmptyMap() throws ReSharperException {
-		setPropertyValue(null);
-		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
+		CustomSeveritiesMap map = testParse("");
 		Assert.assertEquals(0, map.size());
 	}
 
@@ -89,9 +92,7 @@ public class CustomSeveritiesTest {
 	 */
 	@Test
 	public void GarbageShouldResultInEmptyMap() {
-		setPropertyValue("garbage");
-
-		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
+		CustomSeveritiesMap map = testParse("garbage");
 		Assert.assertEquals(0, map.size());		
 	}
 	
@@ -102,8 +103,7 @@ public class CustomSeveritiesTest {
 	@Test
 	public void InvalidXmlhouldBeOkToo() throws ReSharperException {
 		String emptyListWithInvalidXmlAtTheEnd = header + "</wpf>";
-		setPropertyValue(emptyListWithInvalidXmlAtTheEnd);
-		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
+        CustomSeveritiesMap map = testParse(emptyListWithInvalidXmlAtTheEnd);
 		Assert.assertEquals(0, map.size());		
 	}
 	
@@ -115,7 +115,7 @@ public class CustomSeveritiesTest {
 	public void ValidXmlWithNoContentShouldBeOkToo() throws ReSharperException {
 		String emptyList = header + footer;
 		setPropertyValue(emptyList);
-		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
+        CustomSeveritiesMap map = testParse(emptyList);
 		Assert.assertEquals(0, map.size());		
 	}
 	
@@ -127,8 +127,7 @@ public class CustomSeveritiesTest {
 	public void OneCustomSeverity() throws ReSharperException {
 		String customSeverity = "<s:String x:Key=\"/Default/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
 		String customList = header + customSeverity + footer;
-		setPropertyValue(customList);
-		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
+        CustomSeveritiesMap map = testParse(customList);
 		Assert.assertEquals(1, map.size());				
 	}
 	
@@ -137,15 +136,14 @@ public class CustomSeveritiesTest {
 	 */
 	@Test
 	public void DuplicateCustomRuleShouldHaveOnlyOney()throws ReSharperException {
-		createCustomSeverityDefinition();
-		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
+		String customList=createCustomSeverityDefinition();
+        CustomSeveritiesMap map = testParse(customList);
 		Assert.assertEquals(1, map.size());				
 	}
 
-    private void createCustomSeverityDefinition() {
+    private String createCustomSeverityDefinition() {
         String customSeverity = "<s:String x:Key=\"/Default/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
-		String customList = header + customSeverity + customSeverity + footer;
-		setPropertyValue(customList);
+		return  header + customSeverity + customSeverity + footer;
     }
 	
 	/**
@@ -155,8 +153,7 @@ public class CustomSeveritiesTest {
 	public void InvalidCustomRuleWithWeirdKeyShouldBeIgnored() throws ReSharperException{
 		String invalidSeverity = "<s:String x:Key=\"InvalidKey\">ERROR</s:String>";
 		String customList = header + invalidSeverity + footer;
-		setPropertyValue(customList);
-		CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
+        CustomSeveritiesMap map = testParse(customList);
 		Assert.assertEquals(0, map.size());				
 	}
 	
@@ -167,9 +164,7 @@ public class CustomSeveritiesTest {
     public void ParseCustomSeverities_TooManyPartsInKeyShouldBeIgnored() throws ReSharperException{
         String invalidSeverity = "<s:String x:Key=\"/Default/ExtraPart/AnotherPart/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
         String customList = header + invalidSeverity + footer;
-        setPropertyValue(customList);
-
-        CustomSeveritiesMap map = customSeverities.parseCustomSeverities();
+        CustomSeveritiesMap map = testParse(customList);
         Assert.assertEquals(0, map.size());             
     }
 	
@@ -177,14 +172,14 @@ public class CustomSeveritiesTest {
 	public void NoCustomSeveritiesDefinedCheckThatActiveRuleIsNotChanged() throws ReSharperException{
 		String customSeverity = "<s:String x:Key=\"/Default/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
 		String customList = header + customSeverity + footer;
-	    setPropertyValue(customList);
+
 		Rule rule = new Rule();
 		rule.setSeverity(null);
 		rule.setKey("bozo");
 		rule.setSeverity(RulePriority.INFO);
 		ActiveRule activeRule = new ActiveRule(null,rule,null);
 
-		customSeverities.parseCustomSeverities();
+        CustomSeveritiesMap map = testParse(customList);
 		customSeverities.assignCustomSeverity(activeRule);
 		Assert.assertEquals(RulePriority.INFO, activeRule.getSeverity());
 	}
@@ -193,11 +188,11 @@ public class CustomSeveritiesTest {
 	public void CustomSeveritiesDefinedCheckThatActiveRuleIsChanged() throws ReSharperException {
 		String customSeverity = "<s:String x:Key=\"/Default/CodeInspection/Highlighting/InspectionSeverities/=AssignNullToNotNullAttribute/@EntryIndexedValue\">ERROR</s:String>";
 		String customList = header + customSeverity + footer;
-	    setPropertyValue(customList);
+
 		Rule rule = createRule();
 		ActiveRule activeRule = new ActiveRule(null,rule,null);
 
-		customSeverities.parseCustomSeverities();
+        CustomSeveritiesMap map = testParse(customList);
 		customSeverities.assignCustomSeverity(activeRule);
 		Assert.assertEquals(RulePriority.BLOCKER, activeRule.getSeverity());
 	}
@@ -221,7 +216,7 @@ public class CustomSeveritiesTest {
 	 */
 	@Test
 	public void ProfileShouldBeChangedOnMatch() {
-        createCustomSeverityDefinition();
+        customSeverities.setSource(createCustomSeverityDefinition());
 
         List<ActiveRule> rules = new ArrayList<ActiveRule>();
         ActiveRule activeRule=createActiveRule();
@@ -247,4 +242,31 @@ public class CustomSeveritiesTest {
         rule.setSeverity(RulePriority.INFO);
         return rule;
     }
-}
+    
+    public CustomSeveritiesMap testParse(String value) {
+        customSeverities.setSource(value);
+        InputSource inputSource = customSeverities.createInputSource();
+        return customSeverities.parseCustomSeverities(inputSource);
+    }
+    
+    private class CustomSeveritiesStub extends BaseCustomSeverities {
+
+        private String source ;
+        
+        public void setSource(String source) {
+            this.source = source;
+        }
+        @Override
+        InputSource createInputSource() {
+            StringReader reader = new StringReader(source);
+            return new InputSource(reader);
+        }
+        
+        public CustomSeveritiesMap parseCustomSeverities(InputSource inputSource) {
+            return super.parseCustomSeverities(inputSource);
+        }
+        
+
+        
+    }
+} 

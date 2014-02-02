@@ -20,26 +20,39 @@
 
 package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 
-import org.sonar.api.config.Settings;
-import org.sonar.api.profiles.RulesProfile;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
+
+import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 
 
-public class FileCustomSeverities implements CustomSeverities {
+public class FileCustomSeverities extends BaseCustomSeverities {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FileCustomSeverities.class);
 
-    public void mergeCustomSeverities(RulesProfile profile) {
-        // TODO Auto-generated method stub
-        
+    @Override
+    InputSource createInputSource() {
+        String propertyValue=getConfiguration().getString(ReSharperConstants.CUSTOM_SEVERITIES_PATH);
+        if(StringUtils.isEmpty(propertyValue)) {
+            return null ;
+        }
+        return getInputSource(propertyValue);
     }
 
-    public String getProfileName() {
-        // TODO Auto-generated method stub
+    private InputSource getInputSource(String path) {
+        try {
+            File file = new File(path);
+            FileReader fileReader = new FileReader(file);
+            return new InputSource(fileReader);           
+        } catch (FileNotFoundException e) {
+            LOG.error("could not open " + path + "defined in " + ReSharperConstants.CUSTOM_SEVERITIES_PATH + " reason:", e);
+        }
         return null;
     }
-
-    public void setSettings(Settings settings) {
-        // TODO Auto-generated method stub
-        
-    }
-
 }
