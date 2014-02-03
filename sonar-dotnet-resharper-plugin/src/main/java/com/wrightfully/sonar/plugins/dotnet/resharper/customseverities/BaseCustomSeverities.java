@@ -85,11 +85,11 @@ public abstract class BaseCustomSeverities implements CustomSeverities {
        assignCustomSeverities(rules);
    }
 
-private void assignCustomSeverities(List<ActiveRule> rules) {
-    for (ActiveRule activeRule : rules) {
-           assignCustomSeverity(activeRule);
-       }
-}
+    private void assignCustomSeverities(List<ActiveRule> rules) {
+        for (ActiveRule activeRule : rules) {
+               assignCustomSeverity(activeRule);
+           }
+    }
 
 
    /**
@@ -99,13 +99,10 @@ private void assignCustomSeverities(List<ActiveRule> rules) {
     * @throws ReSharperException 
     */
    protected CustomSeveritiesMap parseCustomSeverities(InputSource source) {
-
-       if(source!=null) {
-           NodeList nodes=getStringNodes(source);
-           for(int nodeIndex=0;nodeIndex < nodes.getLength();nodeIndex++) {
-               Node node = nodes.item(nodeIndex);
-               addCustomSeverity(node);
-           }
+       NodeList nodes=getStringNodes(source);
+       for(int nodeIndex=0;nodeIndex < nodes.getLength();nodeIndex++) {
+           Node node = nodes.item(nodeIndex);
+           addCustomSeverity(node);
        }
        return severities;
    }
@@ -151,11 +148,7 @@ private void assignCustomSeverities(List<ActiveRule> rules) {
     * 
     * @param activeRule - the rule that will be changed
     */
-   public void assignCustomSeverity(ActiveRule activeRule) {
-       if (severities == null) {
-           return;
-       }
-       
+   public void assignCustomSeverity(ActiveRule activeRule) {  
        String ruleKey = activeRule.getRuleKey();
        if (severities.containsKey(ruleKey)) {
            RulePriority newPriority = severities.get(ruleKey);

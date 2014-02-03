@@ -75,6 +75,7 @@ public class CustomSeveritiesTest {
 	 */
 	@Test
 	public void EmptySeveritiesListShouldResultInEmptyMap() throws ReSharperException {
+
 		CustomSeveritiesMap map = testParse("");
 		Assert.assertEquals(0, map.size());
 	}
