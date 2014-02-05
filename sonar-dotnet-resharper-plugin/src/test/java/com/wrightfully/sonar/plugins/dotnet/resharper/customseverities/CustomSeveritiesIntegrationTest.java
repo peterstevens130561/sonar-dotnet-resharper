@@ -22,6 +22,8 @@ package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -133,7 +135,23 @@ public class CustomSeveritiesIntegrationTest {
         assertEquals(72,severityDifferences);
     }
 
+    @Test
+    public void createProfileTest_2CustomSeveritiesFromFile_ShouldHaveS2everityChanges() throws IOException {
+        //Given a profile set to booh, and no defined custom severities, and assuming all rules are present
+        ReSharperSonarWayProfile profileCSharp = prepareProfiler();
 
+        //When creating the profile without and with the custom severities
+        RulesProfile defaultProfile=profileCSharp.createProfile(messagesMock);
+        setFileProperty("DotSettingsWithBOM.xml");    
+        RulesProfile customProfile=profileCSharp.createProfile(messagesMock);
+        
+        //Then there should be differences
+        int severityDifferences = getSeverityDifferencesCount(defaultProfile,customProfile);
+        assertEquals(2,severityDifferences);
+        assertEquals(RulePriority.INFO,getRulePriority(customProfile,"AssignNullToNotNullAttribute"));
+        assertEquals(RulePriority.INFO,getRulePriority(customProfile,"BaseMemberHasParams"));
+    }
+    
     private ReSharperSonarWayProfile prepareProfiler() {
         RuleFinder ruleFinder = new SimpleRuleFinder();
         ReSharperProfileImporter.CSharpRegularReSharperProfileImporter profileImporter = new ReSharperProfileImporter.CSharpRegularReSharperProfileImporter(ruleFinder);
@@ -142,8 +160,18 @@ public class CustomSeveritiesIntegrationTest {
         return profileCSharp;
     }   
     
+    private RulePriority getRulePriority(RulesProfile profile,String key) {
+        List<ActiveRule> rules = profile.getActiveRules();
+        for(ActiveRule rule : rules) {
+            if(rule.getRuleKey().equals(key)) {
+                return rule.getSeverity();
+            }
+        }
+        return null;     
+    }
     private int getSeverityDifferencesCount(RulesProfile defaultProfile,
             RulesProfile customProfile) {
+
         List<ActiveRule> defaultRules=defaultProfile.getActiveRules();
         List<ActiveRule> customRules=customProfile.getActiveRules();
         int differences=0;
@@ -153,17 +181,23 @@ public class CustomSeveritiesIntegrationTest {
             RulePriority customPriority = customRules.get(i).getSeverity();
             if(!defaultPriority.equals(customPriority)) {
                 differences +=1;
+                
             }
         }
         return differences;
         
     }
 
-
     private void setCustomSeveritiesProperty(String file) throws IOException {
         Reader reader = new StringReader(TestUtils.getResourceContent("/CustomSeverities/" + file ));
         String myString = IOUtils.toString(reader);
         setSetting(ReSharperConstants.CUSTOM_SEVERITIES_DEFINITON,myString);
+    }
+    
+    private void setFileProperty(String file) throws IOException {
+        File testFile=TestUtils.getResource("CustomSeverities/" + file);
+        String path=testFile.getAbsolutePath();
+        setSetting(ReSharperConstants.CUSTOM_SEVERITIES_PATH,path);
     }
 
     private void assertNoMessages() {

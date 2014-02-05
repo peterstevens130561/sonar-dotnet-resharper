@@ -40,9 +40,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
-import com.wrightfully.sonar.plugins.dotnet.resharper.EmptyNodeList;
+import com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.EmptyNodeList;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
-import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils.ReSharperSeverity;
 
@@ -199,8 +198,7 @@ public abstract class BaseCustomSeverities implements CustomSeverities {
     private String getKeyAttributeValue(Node node) {
         NamedNodeMap attributeMap=node.getAttributes();
         Node keyAttribute=attributeMap.getNamedItem("x:Key");
-        String value=keyAttribute.getNodeValue();
-        return value;
+        return keyAttribute.getNodeValue();
     }
     
     private RulePriority getRulePriority(Node node) {

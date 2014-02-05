@@ -21,9 +21,11 @@
 package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.InputStream;
 
+import org.apache.commons.io.input.BOMInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -35,14 +37,18 @@ public class FileCustomSeverities extends BaseCustomSeverities {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileCustomSeverities.class);
 
+    /**
+     * Create inputsource for a file
+     * Creates inputstream, removes BOM
+     * @return null in case file could not be opened, otherwise inputsource for the file
+     */
     @Override
     InputSource createInputSource(String path) {
         try {
             LOG.trace("Using " + path);
-            File file = new File(path);
-
-            FileReader fileReader = new FileReader(file);
-            return new InputSource(fileReader);           
+            InputStream fileReader = new FileInputStream(path);
+            InputStream inputStream = new BOMInputStream(fileReader);
+            return new InputSource(inputStream);           
         } catch (FileNotFoundException e) {
             LOG.error("could not open " + path + "defined in " + ReSharperConstants.CUSTOM_SEVERITIES_PATH + " reason:", e);
         }

@@ -52,20 +52,33 @@ public class FileCustomSeveritiesTest {
     }
 
     @Test
-    public void FileDoesNotExist_NoInputSource() {
+    public void FileDoesNotExist_ExpectNoInputSource() {
         InputSource inputSource =customSeverities.createInputSource("rabarber901234");
         Assert.assertNull(inputSource);
         
     }
     
     @Test
-    public void FileExists_InputSource() {
+    public void FileExists_ExpectInputSource() {
         File testFile=TestUtils.getResource("CustomSeverities/DotSettings.xml");
         String path=testFile.getAbsolutePath();
         InputSource inputSource =customSeverities.createInputSource(path);
         Assert.assertNotNull(inputSource);       
     }
     
+    /**
+     * Tests the famous BOM in Windows
+     */
+    @Test
+    public void FileWithBOMAnd2EntriesExists_ExpectMapWith2Entries() {
+        File testFile=TestUtils.getResource("CustomSeverities/DotSettingsWithBOM.xml");
+        String path=testFile.getAbsolutePath();
+        InputSource inputSource =customSeverities.createInputSource(path);
+        CustomSeveritiesMap map=customSeverities.parseCustomSeverities(inputSource);
+        Assert.assertEquals(2, map.size());     
+    }
+    
+
     private void setPropertyValue(String value) {
         when(settings.getString(ReSharperConstants.CUSTOM_SEVERITIES_PATH)).thenReturn(value);
     }
