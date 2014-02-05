@@ -19,10 +19,17 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 
+import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
+
 public class AllCustomSeveritiesProvidersMerger {
+    
+
+    private static final Logger LOG = LoggerFactory.getLogger(AllCustomSeveritiesProvidersMerger.class);
     CustomSeverities[] customSeveritiesMergers = { new FileCustomSeverities(), new PropertyBasedCustomSeverities() };
     private Settings settings;
     private RulesProfile profile;
@@ -30,7 +37,7 @@ public class AllCustomSeveritiesProvidersMerger {
     public void merge() {
         for(CustomSeverities merger : customSeveritiesMergers ) {
             merger.setSettings(settings);
-            merger.mergeCustomSeverities(profile);
+            merger.merge(profile);
         }
     }
 
@@ -41,5 +48,21 @@ public class AllCustomSeveritiesProvidersMerger {
     public void setProfile(RulesProfile profile) {
         this.profile = profile;        
     }
+    
+    /* (non-Javadoc)
+    * @see com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeverities#getProfileName()
+    */
+   public String getProfileName() {
+           String profileName=ReSharperConstants.PROFILE_DEFAULT;
+           String customName=settings.getString(ReSharperConstants.PROFILE_NAME);
+           if(customName != null && customName.length()>0) {
+               profileName = customName;
+           } else {
+               LOG.warn("No profile defined for resharper, using default");
+           }
+               
+           LOG.debug("Using profile " + profileName);
+           return profileName;
+       }
     
 }

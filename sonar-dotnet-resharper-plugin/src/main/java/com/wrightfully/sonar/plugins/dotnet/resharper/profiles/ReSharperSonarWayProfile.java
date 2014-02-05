@@ -55,9 +55,8 @@ public class ReSharperSonarWayProfile extends ProfileDefinition {
         merger.setSettings(settings);
         merger.setProfile(profile);
         merger.merge();
-        customSeverities.setSettings(settings);
-        profile.setName(customSeverities.getProfileName());
-        customSeverities.mergeCustomSeverities(profile);
+        profile.setName(merger.getProfileName());
+
         return profile;
     }
 

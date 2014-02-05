@@ -1,4 +1,22 @@
-
+/*
+ * Sonar .NET Plugin :: ReSharper
+ * Copyright (C) 2013 John M. Wright
+ * dev@sonar.codehaus.org
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02
+ */
 package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 
 import static org.mockito.Mockito.when;
@@ -32,17 +50,10 @@ public class FileCustomSeveritiesTest {
         settings = PowerMockito.mock(Settings.class);
         customSeverities.setSettings(settings);      
     }
-    @Test
-    public void NoPropertySet_NoInputSource() {
-        setPropertyValue(null);
-        InputSource inputSource =customSeverities.createInputSource();
-        Assert.assertNull(inputSource);
-    }
-    
+
     @Test
     public void FileDoesNotExist_NoInputSource() {
-        setPropertyValue("rabarber901234");
-        InputSource inputSource =customSeverities.createInputSource();
+        InputSource inputSource =customSeverities.createInputSource("rabarber901234");
         Assert.assertNull(inputSource);
         
     }
@@ -51,8 +62,7 @@ public class FileCustomSeveritiesTest {
     public void FileExists_InputSource() {
         File testFile=TestUtils.getResource("CustomSeverities/DotSettings.xml");
         String path=testFile.getAbsolutePath();
-        setPropertyValue(path);
-        InputSource inputSource =customSeverities.createInputSource();
+        InputSource inputSource =customSeverities.createInputSource(path);
         Assert.assertNotNull(inputSource);       
     }
     
@@ -60,8 +70,8 @@ public class FileCustomSeveritiesTest {
         when(settings.getString(ReSharperConstants.CUSTOM_SEVERITIES_PATH)).thenReturn(value);
     }
     private class FileCustomSeveritiesStub extends FileCustomSeverities {
-        public InputSource createInputSource(String FileName) {
-            return super.createInputSource();
+        public InputSource createInputSource(String fileName) {
+            return super.createInputSource(fileName);
         }
     }
 }

@@ -27,6 +27,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.config.Settings;
@@ -47,40 +48,31 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperUtils.ReSharperSe
 
 public abstract class BaseCustomSeverities implements CustomSeverities {
 
+    private static final String CUSTOM_SEVERITIES_PREFIX = "/Default/CodeInspection/Highlighting/InspectionSeverities";
     private static final Logger LOG = LoggerFactory.getLogger(PropertyBasedCustomSeverities.class);
     private ReSharperConfiguration configuration ;
+    private String definitionKey;
     CustomSeveritiesMap severities = new CustomSeveritiesMap();
     
-    
-    /* (non-Javadoc)
-    * @see com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeverities#getProfileName()
-    */
-   public String getProfileName() {
-           String profileName=ReSharperConstants.PROFILE_DEFAULT;
-           String customName=getConfiguration().getString(ReSharperConstants.PROFILE_NAME);
-           if(customName != null && customName.length()>0) {
-               profileName = customName;
-           } else {
-               LOG.warn("No profile defined for resharper, using default");
-           }
-               
-           LOG.debug("Using profile " + profileName);
-           return profileName;
-       }
+   
    
 
    /* (non-Javadoc)
     * @see com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeverities#mergeCustomSeverities(org.sonar.api.profiles.RulesProfile)
     */
-   public void mergeCustomSeverities(RulesProfile profile) {
+   public void merge(RulesProfile profile) {
        List<ActiveRule> rules = profile.getActiveRules();
-       if (rules == null) {
+       definitionKey = getDefinitionKey() ;
+       String definitionValue=getConfiguration().getString(definitionKey);
+       if (rules == null || StringUtils.isEmpty(definitionValue)) {
            return;
        }
-       InputSource source = createInputSource();
+
+       InputSource source = createInputSource(definitionValue);
        if (source ==null) {
            return;
        }
+       
        parseCustomSeverities(source);
        assignCustomSeverities(rules);
    }
@@ -99,37 +91,41 @@ public abstract class BaseCustomSeverities implements CustomSeverities {
     * @throws ReSharperException 
     */
    protected CustomSeveritiesMap parseCustomSeverities(InputSource source) {
-       NodeList nodes=getStringNodes(source);
-       for(int nodeIndex=0;nodeIndex < nodes.getLength();nodeIndex++) {
-           Node node = nodes.item(nodeIndex);
-           addCustomSeverity(node);
-       }
-       return severities;
-   }
-
-
-   abstract InputSource createInputSource();
-   
-   
-   /**
-    * Get the String nodes through the reader
-    * @return list of string nodes
-    */
-   private NodeList getStringNodes(InputSource source) {
-       XPath xpath = createXPathForInspectCode();
-       NodeList nodes= new EmptyNodeList();
        try {
-           nodes = (NodeList) xpath.evaluate("//s:String",source, XPathConstants.NODESET);
+           NodeList nodes=getStringNodes(source);
+           for(int nodeIndex=0;nodeIndex < nodes.getLength();nodeIndex++) {
+               Node node = nodes.item(nodeIndex);
+               addCustomSeverity(node);
+           }
        } catch (XPathExpressionException e) {
            // There are two cases that can cause this error
            //1: invalid expression, which can't happen
            //2: invalid source, which can happen with an empty string
-           LOG.debug("XPATH error (ignoring",e);
-       }
-       return nodes;
+           LOG.error("XPATH error on key" + definitionKey + "exception ");
+       } 
+       return severities;
    }
 
 
+   /**
+    * May assume that the source is available
+    * @param definitionValue that defines the source
+    * 
+    * @return InputSource for the defined source
+    */
+   abstract InputSource createInputSource(String definitionValue);
+   
+   /**
+    * Get the String nodes through the reader
+    * @return list of string nodes
+ * @throws XPathExpressionException 
+    */
+   private NodeList getStringNodes(InputSource source) throws XPathExpressionException {
+       XPath xpath = createXPathForInspectCode();
+       NodeList nodes= new EmptyNodeList();
+       nodes = (NodeList) xpath.evaluate("//s:String",source, XPathConstants.NODESET);
+       return nodes;
+   }
 
    /**
     * create xpath and assign the namespace resolver for InspectCode namespace
@@ -168,6 +164,9 @@ public abstract class BaseCustomSeverities implements CustomSeverities {
     }
     private void tryAddCustomSeverity(Node node) throws ReSharperException  {
         String key = getKey(node);
+        if(StringUtils.isEmpty(key)) {
+            return ;
+        }
         RulePriority priority= getRulePriority(node);
         if (severities.containsKey(key)) {
             LOG.warn("duplicate entry for " + key);
@@ -176,16 +175,32 @@ public abstract class BaseCustomSeverities implements CustomSeverities {
         }
     }
     
+    /***
+     * Get the key of the issuetype
+     * Check that the key of the string starts with the prefix, if not, return null
+     * @param node
+     * @return null if not a custom severity definiton, otherwise the key
+     * @throws ReSharperException if invalid specification
+     */
     private String getKey(Node node) throws ReSharperException  {
-        NamedNodeMap attributeMap=node.getAttributes();
-        Node keyAttribute=attributeMap.getNamedItem("x:Key");
-        String value=keyAttribute.getNodeValue();
+        String value = getKeyAttributeValue(node);
+        if (!value.startsWith(CUSTOM_SEVERITIES_PREFIX)) {
+            return null;
+        }
+        
         String[] values=value.split("[/=]");
         if(values.length !=8 && values.length !=9) {
             throw new ReSharperException("Invalid key, does not contain 8 or 9 segments seperated by / " + value + 
                     "\ncontains " + values.length + " elements" );
         }
         return values[values.length-2];
+    }
+
+    private String getKeyAttributeValue(Node node) {
+        NamedNodeMap attributeMap=node.getAttributes();
+        Node keyAttribute=attributeMap.getNamedItem("x:Key");
+        String value=keyAttribute.getNodeValue();
+        return value;
     }
     
     private RulePriority getRulePriority(Node node) {
@@ -210,4 +225,5 @@ public abstract class BaseCustomSeverities implements CustomSeverities {
          this.configuration = configuration;
      }
 
+    abstract String getDefinitionKey();
 }

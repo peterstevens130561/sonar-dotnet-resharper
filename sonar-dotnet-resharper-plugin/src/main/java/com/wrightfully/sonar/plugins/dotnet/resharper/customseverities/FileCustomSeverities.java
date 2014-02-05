@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
@@ -37,17 +36,11 @@ public class FileCustomSeverities extends BaseCustomSeverities {
     private static final Logger LOG = LoggerFactory.getLogger(FileCustomSeverities.class);
 
     @Override
-    InputSource createInputSource() {
-        String propertyValue=getConfiguration().getString(ReSharperConstants.CUSTOM_SEVERITIES_PATH);
-        if(StringUtils.isEmpty(propertyValue)) {
-            return null ;
-        }
-        return getInputSource(propertyValue);
-    }
-
-    private InputSource getInputSource(String path) {
+    InputSource createInputSource(String path) {
         try {
+            LOG.trace("Using " + path);
             File file = new File(path);
+
             FileReader fileReader = new FileReader(file);
             return new InputSource(fileReader);           
         } catch (FileNotFoundException e) {
@@ -55,4 +48,10 @@ public class FileCustomSeverities extends BaseCustomSeverities {
         }
         return null;
     }
+
+    @Override
+    String getDefinitionKey() {
+        return ReSharperConstants.CUSTOM_SEVERITIES_PATH;
+    }
+
 }

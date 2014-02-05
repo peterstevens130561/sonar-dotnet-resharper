@@ -31,9 +31,7 @@ import org.sonar.api.profiles.RulesProfile;
  */
 public interface CustomSeverities {
 
-    void mergeCustomSeverities(RulesProfile profile);
-
-    String getProfileName();
+    void merge(RulesProfile profile);
 
     void setSettings(Settings settings);
 

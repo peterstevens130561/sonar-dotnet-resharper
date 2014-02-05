@@ -62,7 +62,7 @@ public class GetProfileNameTest {
     }
    
     private void testGetProfileName(String expectedProfileName,String definedProfileName) {
-        CustomSeverities customSeverities = new PropertyBasedCustomSeverities();
+        AllCustomSeveritiesProvidersMerger customSeverities = new AllCustomSeveritiesProvidersMerger();
         customSeverities.setSettings(settingsMock);
         when(settingsMock.getString(ReSharperConstants.PROFILE_NAME)).thenReturn(definedProfileName);  
         String actualProfileName=customSeverities.getProfileName();

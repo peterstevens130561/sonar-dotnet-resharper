@@ -43,7 +43,6 @@ import org.sonar.api.profiles.RulesProfile;
 import junit.framework.Assert;
 
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
-import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 import com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeveritiesMap;
 
@@ -208,7 +207,7 @@ public class CustomSeveritiesTest {
 	public void EmptyProfileShouldReturnWithoutException() {
 	    RulesProfile profileMock = mock(RulesProfile.class);
 	    when(profileMock.getActiveRules()).thenReturn(null);
-	    customSeverities.mergeCustomSeverities(profileMock);
+	    customSeverities.merge(profileMock);
 	    Assert.assertTrue(true);
 	}
 	
@@ -217,7 +216,7 @@ public class CustomSeveritiesTest {
 	 */
 	@Test
 	public void ProfileShouldBeChangedOnMatch() {
-        customSeverities.setSource(createCustomSeverityDefinition());
+        setPropertyValue(createCustomSeverityDefinition());
 
         List<ActiveRule> rules = new ArrayList<ActiveRule>();
         ActiveRule activeRule=createActiveRule();
@@ -225,7 +224,7 @@ public class CustomSeveritiesTest {
         RulesProfile profileMock = mock(RulesProfile.class);
         when(profileMock.getActiveRules()).thenReturn(rules);
     
-        customSeverities.mergeCustomSeverities(profileMock);
+        customSeverities.merge(profileMock);
         Assert.assertEquals(RulePriority.BLOCKER, activeRule.getSeverity());
 	}
 	
@@ -244,21 +243,18 @@ public class CustomSeveritiesTest {
         return rule;
     }
     
-    public CustomSeveritiesMap testParse(String value) {
-        customSeverities.setSource(value);
-        InputSource inputSource = customSeverities.createInputSource();
+    public CustomSeveritiesMap testParse(String value)  {
+        setPropertyValue(value);
+        InputSource inputSource = customSeverities.createInputSource(value);
         return customSeverities.parseCustomSeverities(inputSource);
     }
     
     private class CustomSeveritiesStub extends BaseCustomSeverities {
 
-        private String source ;
+
         
-        public void setSource(String source) {
-            this.source = source;
-        }
         @Override
-        InputSource createInputSource() {
+        InputSource createInputSource(String source) {
             StringReader reader = new StringReader(source);
             return new InputSource(reader);
         }
@@ -266,8 +262,13 @@ public class CustomSeveritiesTest {
         public CustomSeveritiesMap parseCustomSeverities(InputSource inputSource) {
             return super.parseCustomSeverities(inputSource);
         }
-        
+        @Override
+        String getDefinitionKey() {
+            // TODO Auto-generated method stub
+            return ReSharperConstants.CUSTOM_SEVERITIES_DEFINITON;
+        }
 
+        
         
     }
 } 
