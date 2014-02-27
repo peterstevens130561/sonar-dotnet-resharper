@@ -20,11 +20,14 @@
 package com.wrightfully.sonar.plugins.dotnet.resharper;
 
 import org.sonar.api.*;
+
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileExporter;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileImporter;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfileCSharp;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperSonarWayProfileVbNet;
+
 import org.sonar.plugins.dotnet.api.sensor.AbstractDotNetSensor;
+
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
 
 import java.util.ArrayList;
@@ -34,7 +37,7 @@ import java.util.List;
  * Main class of the ReSharper plugin.
  */
 @Properties({
-        @Property(key = ReSharperConstants.MODE, defaultValue = "", name = "ReSharper activation mode",
+    @Property(key = ReSharperConstants.MODE, defaultValue = "", name = "ReSharper activation mode",
                 description = "Possible values : empty (means active), 'skip' and 'reuseReport'.", global = false, project = false,
                 type = PropertyType.SINGLE_SELECT_LIST, options = {AbstractDotNetSensor.MODE_SKIP, AbstractDotNetSensor.MODE_REUSE_REPORT}),
         @Property(key = ReSharperConstants.REPORTS_PATH_KEY, defaultValue = "", name = "Path of the ReSharper report file(s)",
@@ -47,7 +50,17 @@ import java.util.List;
                 project = true, type = PropertyType.INTEGER),
         @Property(key = ReSharperConstants.INCLUDE_ALL_FILES, defaultValue = "true",
                 name = "ReSharper file inclusion mode", description = "Determines if violations are reported on any file (ignores filters and unsupported file types) or only those supported by the dotNet core plugin.", global = false,
-                project = false, type = PropertyType.BOOLEAN)
+        project = false, type = PropertyType.BOOLEAN),
+        @Property(
+        		key = ReSharperConstants.CUSTOM_SEVERITIES_DEFINITON,
+        defaultValue = "", name = "ReSharper custom severities",
+        description = "Add &lt;String&gt; vales from ReSharper's custom definitions (including &lt:wpf:ResourceDictionary&gt;) A restart is required to take affect.",
+                type = PropertyType.TEXT, global = true, project = false),
+        @Property(key= ReSharperConstants.PROFILE_NAME,defaultValue = ReSharperConstants.PROFILE_DEFAULT, name = "Profile",
+        description = "Profile to which rules will be saved on restart, if profile does not exist",type=PropertyType.STRING,global=true,project=false),
+        @Property(key=ReSharperConstants.CUSTOM_SEVERITIES_PATH,name="Path to custom severities settings",
+        description = "Absolute path to file with exported ReSharper settings: RESHARPER, Manage Options...,Import/Export Settiings, Export to file,CodeInspection",
+        type=PropertyType.STRING,global=true,project=false)
 })
 public class ReSharperPlugin extends SonarPlugin {
 

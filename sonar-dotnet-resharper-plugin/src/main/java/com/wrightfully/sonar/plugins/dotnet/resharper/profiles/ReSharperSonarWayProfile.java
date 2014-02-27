@@ -27,20 +27,24 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.utils.ValidationMessages;
 
-import com.wrightfully.sonar.plugins.dotnet.resharper.CustomSeverities;
-import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
-import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
+import com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.CustomSeverities;
+import com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.AllCustomSeveritiesProvidersMerger;
+import com.wrightfully.sonar.plugins.dotnet.resharper.customseverities.PropertyBasedCustomSeverities;
 
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
 
-public class ReSharperSonarWayProfile extends ProfileDefinition {
 
+public class ReSharperSonarWayProfile extends ProfileDefinition {
+	
+    private static final Logger LOG = LoggerFactory.getLogger(ReSharperSonarWayProfile.class);
     private static final Logger LOG = LoggerFactory.getLogger(ReSharperSonarWayProfile.class);
     private ReSharperProfileImporter profileImporter;
     private String languageKey;
     private Settings settings;
+    private CustomSeverities customSeverities = new PropertyBasedCustomSeverities();
+    
     protected ReSharperSonarWayProfile(ReSharperProfileImporter profileImporter, String languageKey,Settings settings) {
         this.profileImporter = profileImporter;
         this.languageKey = languageKey;
@@ -51,37 +55,17 @@ public class ReSharperSonarWayProfile extends ProfileDefinition {
         RulesProfile profile = profileImporter.importProfile(
                 new InputStreamReader(getClass().getResourceAsStream("/com/wrightfully/sonar/plugins/dotnet/resharper/rules/DefaultRules.ReSharper")), messages);
         profile.setLanguage(languageKey);
-        String profileName=getProfileName();
-        profile.setName(profileName);
-        mergeCustomSeveritiesIntoProfile(profile);
+        AllCustomSeveritiesProvidersMerger merger = new AllCustomSeveritiesProvidersMerger() ;
+        merger.setSettings(settings);
+        merger.setProfile(profile);
+        merger.merge();
+        profile.setName(merger.getProfileName());
+
         return profile;
     }
 
-    private void mergeCustomSeveritiesIntoProfile(RulesProfile profile) {
-        List<ActiveRule> rules = profile.getActiveRules();
-        ReSharperConfiguration config = new ReSharperConfiguration(settings);
-        CustomSeverities customSeverities = new CustomSeverities(config);
-        customSeverities.parse();
-        if (rules == null) return;
-        for (ActiveRule activeRule : rules) {
-            customSeverities.assignCustomSeverity(activeRule);
-        }
-    }
-
-
-    private String getProfileName() {
-    	String profileName=ReSharperConstants.PROFILE_DEFVALUE;
-    	Map <String,String> properties= settings.getProperties() ;
-    	LOG.info(" found properties" + properties.size());
-    	String customName=settings.getString(ReSharperConstants.PROFILE_NAME);
-    	if(customName != null && customName.length()>0) {
-    		profileName = customName;
-    	} else {
-    		LOG.warn("No profile defined for resharper, using default");
-    	}
-    		
-    	LOG.info("Using profile " + profileName);
-    	return profileName;
+    public void setCustomSeverities(CustomSeverities fakerCustomSeverities) {
+        customSeverities = fakerCustomSeverities;
     }
 
 }
