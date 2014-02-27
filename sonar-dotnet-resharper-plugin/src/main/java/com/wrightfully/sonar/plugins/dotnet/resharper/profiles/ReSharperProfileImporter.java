@@ -88,10 +88,10 @@ public class ReSharperProfileImporter extends ProfileImporter {
 
         for (ReSharperRule reSharperRule : rules) {
             String ruleName = reSharperRule.getId();
-            String ruleKey = getKey();
+            String ruleKey = reSharperRule.getKey();
             LOG.debug("rule " + ruleName + " key" + ruleKey );
 
-            RuleQuery ruleQuery=RuleQuery.create().withRepositoryKey(ruleKey).withKey(ruleName);
+            RuleQuery ruleQuery=RuleQuery.create().withRepositoryKey(getKey()).withKey(ruleKey);
             Rule rule = ruleFinder.find(ruleQuery);
 
             if (rule != null) {

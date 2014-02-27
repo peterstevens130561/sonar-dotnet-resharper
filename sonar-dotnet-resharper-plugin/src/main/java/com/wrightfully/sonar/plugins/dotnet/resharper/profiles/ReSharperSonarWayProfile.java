@@ -39,7 +39,6 @@ import java.util.Map;
 public class ReSharperSonarWayProfile extends ProfileDefinition {
 	
     private static final Logger LOG = LoggerFactory.getLogger(ReSharperSonarWayProfile.class);
-    private static final Logger LOG = LoggerFactory.getLogger(ReSharperSonarWayProfile.class);
     private ReSharperProfileImporter profileImporter;
     private String languageKey;
     private Settings settings;

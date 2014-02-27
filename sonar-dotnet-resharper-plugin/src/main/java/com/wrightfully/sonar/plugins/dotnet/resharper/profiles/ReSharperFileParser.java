@@ -37,12 +37,14 @@ import java.util.List;
 
 public class ReSharperFileParser {
     private static final Logger LOG = LoggerFactory.getLogger(ReSharperFileParser.class);
+    private ValidationMessages messages ;
+    
 
-    public static List<ReSharperRule> parseRules(Reader reader) {
-        return parseRules(reader, null);
+    public void setMessages(ValidationMessages messages) {
+        this.messages = messages;
     }
-
-    public static List<ReSharperRule> parseRules(Reader reader, ValidationMessages messages) {
+    
+    public  List<ReSharperRule> parseRules(Reader reader) {
         List<ReSharperRule> result = new ArrayList<ReSharperRule>();
 
         try {
