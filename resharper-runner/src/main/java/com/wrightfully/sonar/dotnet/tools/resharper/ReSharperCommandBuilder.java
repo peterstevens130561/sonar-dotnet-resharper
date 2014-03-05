@@ -24,8 +24,10 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.command.Command;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioProject;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
+import org.sonatype.aether.util.StringUtils;
 
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * Class used to build the command line to run ReSharper inspectcoe.
@@ -37,6 +39,7 @@ public final class ReSharperCommandBuilder {
     private File resharperReportFile;
     protected File executable;
 
+    private ArrayList<String> arguments  = new ArrayList<String>();
     private VisualStudioSolution solution;
     private VisualStudioProject vsProject;
 
@@ -118,9 +121,26 @@ public final class ReSharperCommandBuilder {
     command.addArgument("/output=" + resharperReportFile.getAbsolutePath());
 
     LOG.debug("- Solution file               : " + solution);
+    
+    for(String argument : arguments) {
+        command.addArgument(argument);
+    }
+    
     command.addArgument(solution.getSolutionFile().getAbsolutePath());
+
 
     return command;
   }
+
+  /**
+   *  if value is not empty, the concatenation of name & value are added to the arguments
+   *  When building the arguments are added before the solution argument.
+   * @param name of the argument
+   * @param value of the agument
+   */
+    public void addArgument(String name, String value) {
+        if(StringUtils.isEmpty(value)) return;
+        arguments.add(name + value);
+    }
 
 }

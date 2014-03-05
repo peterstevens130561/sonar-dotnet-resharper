@@ -54,5 +54,6 @@ public final class ReSharperConstants {
     public static final String FAIL_ON_ISSUES_KEY = "sonar.resharper.failOnIssues";
 	public static final String CUSTOM_SEVERITIES_DEFINITON = "sonar.resharper.customSeverities.definition";
 	public static final String CUSTOM_SEVERITIES_PATH = "sonar.resharper.customSeverities.path";
+	public static final String INSPECTCODE_PROPERTIES = "sonar.resharper.inspectcode.properties" ;
     public static final String PROFILE_DEFAULT="Sonar way";
 }

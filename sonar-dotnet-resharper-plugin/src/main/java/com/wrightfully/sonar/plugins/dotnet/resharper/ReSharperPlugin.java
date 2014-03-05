@@ -60,7 +60,8 @@ import java.util.List;
         description = "Profile to which rules will be saved on restart, if profile does not exist",type=PropertyType.STRING,global=true,project=false),
         @Property(key=ReSharperConstants.CUSTOM_SEVERITIES_PATH,name="Path to custom severities settings",
         description = "Absolute path to file with exported ReSharper settings: RESHARPER, Manage Options...,Import/Export Settiings, Export to file,CodeInspection",
-        type=PropertyType.STRING,global=true,project=false)
+        type=PropertyType.STRING,global=true,project=false),
+        @Property(key=ReSharperConstants.INSPECTCODE_PROPERTIES,name="properties argument for inspectcode",type=PropertyType.STRING,global=false,project=true)
 })
 public class ReSharperPlugin extends SonarPlugin {
 

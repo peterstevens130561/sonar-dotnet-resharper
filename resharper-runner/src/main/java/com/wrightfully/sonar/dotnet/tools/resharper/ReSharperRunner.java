@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.command.CommandExecutor;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioProject;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
+import org.sonatype.aether.util.StringUtils;
 
 import java.io.File;
 
@@ -87,5 +88,6 @@ public final class ReSharperRunner {
         + "'. Check ReSharper documentation for more information.");
     }
   }
+
 
 }
