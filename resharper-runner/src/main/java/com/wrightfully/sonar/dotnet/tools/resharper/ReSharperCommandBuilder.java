@@ -19,12 +19,12 @@
  */
 package com.wrightfully.sonar.dotnet.tools.resharper;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.command.Command;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioProject;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
-import org.sonatype.aether.util.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;

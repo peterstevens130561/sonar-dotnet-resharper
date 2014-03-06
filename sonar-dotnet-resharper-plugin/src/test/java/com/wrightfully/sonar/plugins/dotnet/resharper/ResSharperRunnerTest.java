@@ -64,7 +64,9 @@ public class ResSharperRunnerTest {
         Command command=builder.toCommand();
         //Verify
         String commandLine=command.toCommandLine();
+        
         Assert.assertNotNull(commandLine);
+        Assert.assertTrue(commandLine.contains("/properties:VisualStudioSolution=12.0"));
     }
     
 }
