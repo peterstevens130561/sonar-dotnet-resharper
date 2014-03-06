@@ -44,29 +44,73 @@ public class ResSharperRunnerTest {
     private VisualStudioSolution vsSolution ;
     private VisualStudioProject vsProject ;
     private DotNetConfiguration configuration;
+    private File solutionFile;
+    private ReSharperRunner runner ;
     
     @Before
-    public void setup() {
+    public void arrange() throws ReSharperException {
         vsSolution = mock(VisualStudioSolution.class);
         vsProject = mock(VisualStudioProject.class); 
         configuration = mock(DotNetConfiguration.class);
+        runner = ReSharperRunner.create(INSPECT_PATH);
+        solutionFile = new File("solution.sln");
+        when(vsSolution.getSolutionFile()).thenReturn(solutionFile);
     }
+    
     @Test
-    public void ReSharperRunner_CreateInspectCodeArguments_ShouldMatch() throws ReSharperException {
-        //Setup
-        ReSharperRunner runner = ReSharperRunner.create(INSPECT_PATH);
-        when(vsSolution.getSolutionFile()).thenReturn(new File("solution.sln"));
-        //Arrange
+    public void ReSharperRunner_CreateBasicInvocations_CommandLineHasSolutionAtEnd() throws ReSharperException {
+      
+        //Act
         ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject);
         builder.setReportFile(new File("john"));
-        builder.addArgument("/properties:","VisualStudioSolution=12.0");
-        int timeout = configuration.getInt(ReSharperConstants.TIMEOUT_MINUTES_KEY);
+
+        //Assert
         Command command=builder.toCommand();
-        //Verify
+        String commandLine=command.toCommandLine();
+        
+        String expectedSolutionPath = solutionFile.getAbsolutePath().replaceAll("/", "\\\\");       
+        Assert.assertTrue(commandLine.endsWith(" " + expectedSolutionPath));
+    }
+    
+    @Test
+    public void ReSharperRunner_CreateInvocationWithoutInspectCodeProperties_CommandLineHasNoProperties() throws ReSharperException {
+      
+        //Act
+        ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject);
+        builder.setReportFile(new File("john"));
+
+        //Assert
+        Command command=builder.toCommand();
         String commandLine=command.toCommandLine();
         
         Assert.assertNotNull(commandLine);
+        Assert.assertTrue(commandLine.contains(" /properties"));
+        
+
+    }
+    @Test
+    public void ReSharperRunner_CreateInvocationWithInspectCodeProperties_CommandLineHasPropertiesBeforeSolution() throws ReSharperException {
+
+       
+        //Act
+        ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject);
+        builder.setReportFile(new File("john"));
+        builder.addArgument("/properties:","VisualStudioSolution=12.0");
+
+        //Assert
+        Command command=builder.toCommand();
+        String commandLine=command.toCommandLine();
+        
+        String expectedSolutionPath = solutionFile.getAbsolutePath().replaceAll("/", "\\\\");       
+        Assert.assertTrue(commandLine.endsWith(expectedSolutionPath));
+        
+        String expectedPath=INSPECT_PATH.replaceAll("/", "\\\\"); 
+        Assert.assertTrue(commandLine.startsWith(expectedPath));
+        
+        Assert.assertNotNull(commandLine);
         Assert.assertTrue(commandLine.contains("/properties:VisualStudioSolution=12.0"));
+        
+
     }
     
 }
