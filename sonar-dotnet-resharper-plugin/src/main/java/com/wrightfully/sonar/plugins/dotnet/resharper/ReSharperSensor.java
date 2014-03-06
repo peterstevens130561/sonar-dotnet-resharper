@@ -112,51 +112,66 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
     public void analyse(Project project, SensorContext context) {
 
         final Collection<File> reportFiles;
-        String reportDefaultPath = getMicrosoftWindowsEnvironment().getWorkingDirectory() + "/" + ReSharperConstants.REPORT_FILENAME;
-        String executionMode = getExecutionMode();
-
-        if (MODE_REUSE_REPORT.equalsIgnoreCase(executionMode)) {
-            String reportPath = resharperConfiguration.getString(ReSharperConstants.REPORTS_PATH_KEY);
-
-            if (StringUtils.isEmpty(reportPath)) {
-                reportPath = reportDefaultPath;
-            }
-            VisualStudioSolution vsSolution = getVSSolution();
-            VisualStudioProject vsProject = getVSProject(project);
-            reportFiles = FileFinder.findFiles(vsSolution, vsProject, reportPath);
-
-            if (reportFiles.size() == 0){
-                throw new SonarException("No ReSharper reports found. Make sure to set " + ReSharperConstants.REPORTS_PATH_KEY);
-            }
-
-            LOG.info("Reusing ReSharper reports: " + Joiner.on("; ").join(reportFiles));
-        } else if (StringUtils.isEmpty(executionMode)) {
-            try {
-                ReSharperRunner runner = ReSharperRunner.create(resharperConfiguration.getString(ReSharperConstants.INSTALL_DIR_KEY));
-                launchInspectCode(project, runner);
-            } catch (ReSharperException e) {
-                throw new SonarException("ReSharper execution failed.", e);
-            }
-            File projectDir = fileSystem.getBasedir();
-            reportFiles = Collections.singleton(new File(projectDir, reportDefaultPath));
-        }  else {
-           throw new SonarException("Run Mode not supported: " + executionMode);
+        if (MODE_REUSE_REPORT.equalsIgnoreCase(getExecutionMode())) {
+            reportFiles = getExistingReports(project);
+        } else {
+            reportFiles = inspectCode(project);
         }
-
+        if(reportFiles == null || reportFiles.isEmpty()) {
+            LOG.warn("Nothing to report");
+            return;
+        }
         // and analyze results
         for (File reportFile : reportFiles) {
+            LOG.debug("Analysing report" + reportFile.getName());
             analyseResults(reportFile);
         }
     }
 
+    private String getReportDefaultPath() {
+        return getMicrosoftWindowsEnvironment().getWorkingDirectory() + "/" + ReSharperConstants.REPORT_FILENAME;
+    }
 
-    protected void launchInspectCode(Project project, ReSharperRunner runner) throws ReSharperException {
+    private Collection<File> getExistingReports(Project project) {
+        Collection<File> reportFiles;
+        String reportPath = configuration.getString(ReSharperConstants.REPORTS_PATH_KEY);
+        if (StringUtils.isEmpty(reportPath)) {
+            reportPath = getReportDefaultPath();
+            LOG.info(ReSharperConstants.REPORTS_PATH_KEY + " undefined, using " + reportPath);
+        } else {
+            LOG.debug("Reportpath " + reportPath);
+        }
+
         VisualStudioSolution vsSolution = getVSSolution();
         VisualStudioProject vsProject = getVSProject(project);
-        ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject);
-        builder.setReportFile(new File(fileSystem.getSonarWorkingDirectory(), ReSharperConstants.REPORT_FILENAME));
-        int timeout = resharperConfiguration.getInt(ReSharperConstants.TIMEOUT_MINUTES_KEY);
-        runner.execute(builder, timeout);
+        reportFiles = FileFinder.findFiles(vsSolution, vsProject, reportPath);
+        if (reportFiles.size() == 0) {
+            String msg = "No ReSharper reports found. Make sure to set " + ReSharperConstants.REPORTS_PATH_KEY;
+            LOG.error(msg);
+            new SonarException(msg);
+        }
+
+        LOG.info("Reusing ReSharper reports: " + Joiner.on("; ").join(reportFiles));
+        return reportFiles;
+    }
+
+    private Collection<File> inspectCode(Project project) {
+        File reportFile;
+        try {
+            ReSharperRunner runner = ReSharperRunner.create(configuration.getString(ReSharperConstants.INSTALL_DIR_KEY));
+            VisualStudioSolution vsSolution = getVSSolution();
+            VisualStudioProject vsProject = getVSProject(project);
+
+            ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject);
+            reportFile= new File(fileSystem.getSonarWorkingDirectory(), ReSharperConstants.REPORT_FILENAME);
+            builder.setReportFile(reportFile);
+            int timeout = configuration.getInt(ReSharperConstants.TIMEOUT_MINUTES_KEY);
+            runner.execute(builder, timeout);
+        } catch (ReSharperException e) {
+            throw new SonarException("ReSharper execution failed." + e.getMessage(), e);
+        }
+        Collection<File> reportFiles = Collections.singleton(reportFile);
+        return reportFiles;
     }
 
     private void analyseResults(File reportFile) throws SonarException {
