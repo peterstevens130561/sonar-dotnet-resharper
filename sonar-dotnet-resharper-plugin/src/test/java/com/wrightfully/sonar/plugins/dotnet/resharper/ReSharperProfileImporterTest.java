@@ -23,47 +23,24 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileI
 
 import org.sonar.api.utils.ValidationMessages;
 
-import com.google.common.collect.Lists;
+
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.resources.Project;
-import org.sonar.api.resources.ProjectFileSystem;
-import org.sonar.api.resources.Resource;
 import org.sonar.api.rules.*;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.rules.RuleQuery;
-import org.sonar.api.rules.Violation;
-import org.sonar.plugins.dotnet.api.DotNetResourceBridge;
-import org.sonar.plugins.dotnet.api.DotNetResourceBridges;
-import org.sonar.plugins.dotnet.api.microsoft.MicrosoftWindowsEnvironment;
-import org.sonar.plugins.dotnet.api.microsoft.VisualStudioProject;
-import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
-import org.sonar.plugins.dotnet.api.utils.ResourceHelper;
 import org.sonar.test.TestUtils;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.test.TestUtils;
-
-import java.io.File;
-import java.lang.Exception;
-import java.nio.charset.Charset;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.io.Reader;
 import java.io.StringReader;
-
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import static org.mockito.Matchers.any;
+
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.*;
-
-
-import org.xml.sax.SAXException;
-
 
 import static org.fest.assertions.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;

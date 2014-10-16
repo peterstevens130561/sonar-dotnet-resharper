@@ -22,10 +22,6 @@ package com.wrightfully.sonar.plugins.dotnet.resharper.customseverities;
 
 
 import java.io.StringReader;
-
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
 import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
@@ -33,7 +29,6 @@ import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConstants;
 
 
 public class PropertyBasedCustomSeverities extends BaseCustomSeverities {
-    private static final Logger LOG = LoggerFactory.getLogger(PropertyBasedCustomSeverities.class);
     
     @Override
     String getDefinitionKey() {

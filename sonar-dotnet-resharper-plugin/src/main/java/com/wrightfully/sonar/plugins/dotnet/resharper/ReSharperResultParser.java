@@ -34,11 +34,9 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.rules.Violation;
 import org.sonar.api.utils.SonarException;
-import org.sonar.plugins.dotnet.api.DotNetResourceBridges;
 import org.sonar.plugins.dotnet.api.microsoft.MicrosoftWindowsEnvironment;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioProject;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
-import org.sonar.plugins.dotnet.api.utils.ResourceHelper;
 import org.sonar.plugins.dotnet.api.utils.StaxParserUtils;
 
 import com.wrightfully.sonar.plugins.dotnet.resharper.failingissues.IssueListener;

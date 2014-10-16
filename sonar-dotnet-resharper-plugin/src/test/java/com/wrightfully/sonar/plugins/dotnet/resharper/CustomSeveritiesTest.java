@@ -20,12 +20,9 @@
 package com.wrightfully.sonar.plugins.dotnet.resharper;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.api.config.Settings;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;

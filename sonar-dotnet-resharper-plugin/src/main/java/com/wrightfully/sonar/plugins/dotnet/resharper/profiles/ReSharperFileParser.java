@@ -55,9 +55,7 @@ public class ReSharperFileParser {
 
             if (nodes == null || nodes.getLength() == 0)  {
                 String logMsg = "No IssueType nodes found in profile file";
-                if (messages != null)
-                    messages.addErrorText(logMsg);
-                else LOG.error(logMsg);
+                logWarningMessage(logMsg);
             }
             else {
 
@@ -86,31 +84,29 @@ public class ReSharperFileParser {
                     String severity = ruleElement.getAttribute("Severity");
                     try {
                         rule.setSeverity(ReSharperRule.ReSharperSeverity.valueOf(severity));
-                    } catch (Exception ex)
-                    {
+                    } catch (Exception ex) {
                         rule.setSeverity(ReSharperRule.ReSharperSeverity.WARNING);
-
                         String logMsg = "exception while parsing resharper severity '" + severity +"': " + ex.getMessage();
-                        if (messages != null)
-                            messages.addErrorText(logMsg);
-                        else LOG.warn(logMsg);
-
+                        logWarningMessage(logMsg);
                     }
                     result.add(rule);
                 }
             }
         } catch (XPathExpressionException e) {
             String logMsg = "xpath exception while parsing resharper config file: " + e.getMessage();
-            if (messages != null)
-                messages.addErrorText(logMsg);
-            else LOG.warn(logMsg);
+            logWarningMessage(logMsg);
 
         } catch (Exception e) {
             String logMsg =       "Failed to read the profile to import: " + e.getMessage();
-            if (messages != null)
-                messages.addErrorText(logMsg);
-            else LOG.warn(logMsg);
+            logWarningMessage(logMsg);
         }
         return result;
+    }
+    
+    private void logWarningMessage(String logMsg) {
+        if (messages != null)
+            messages.addErrorText(logMsg);
+        else LOG.warn(logMsg);
+        
     }
 }

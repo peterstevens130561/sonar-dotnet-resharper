@@ -43,7 +43,6 @@ public class ResSharperRunnerTest {
     private static final String INSPECT_PATH="C:/Program Files/JetBrains";
     private VisualStudioSolution vsSolution ;
     private VisualStudioProject vsProject ;
-    private DotNetConfiguration configuration;
     private File solutionFile;
     private ReSharperRunner runner ;
     
@@ -51,7 +50,6 @@ public class ResSharperRunnerTest {
     public void arrange() throws ReSharperException {
         vsSolution = mock(VisualStudioSolution.class);
         vsProject = mock(VisualStudioProject.class); 
-        configuration = mock(DotNetConfiguration.class);
         runner = ReSharperRunner.create(INSPECT_PATH);
         solutionFile = new File("solution.sln");
         when(vsSolution.getSolutionFile()).thenReturn(solutionFile);
@@ -61,7 +59,7 @@ public class ResSharperRunnerTest {
     public void ReSharperRunner_CreateBasicInvocations_CommandLineHasSolutionAtEnd() throws ReSharperException {
       
         //Act
-        ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject);
+        ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject,null);
         builder.setReportFile(new File("john"));
 
         //Assert
@@ -76,7 +74,7 @@ public class ResSharperRunnerTest {
     public void ReSharperRunner_CreateInvocationWithoutInspectCodeProperties_CommandLineHasNoProperties() throws ReSharperException {
       
         //Act
-        ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject);
+        ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject,null);
         builder.setReportFile(new File("john"));
 
         //Assert
@@ -84,16 +82,14 @@ public class ResSharperRunnerTest {
         String commandLine=command.toCommandLine();
         
         Assert.assertNotNull(commandLine);
-        Assert.assertTrue(commandLine.contains(" /properties"));
-        
-
+        Assert.assertFalse(commandLine.contains(" /properties"));
     }
     @Test
     public void ReSharperRunner_CreateInvocationWithInspectCodeProperties_CommandLineHasPropertiesBeforeSolution() throws ReSharperException {
 
        
         //Act
-        ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject);
+        ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject,null);
         builder.setReportFile(new File("john"));
         builder.addArgument("/properties:","VisualStudioSolution=12.0");
 
