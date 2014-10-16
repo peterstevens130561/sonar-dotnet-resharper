@@ -68,7 +68,7 @@ public class FailOnIssuesTest {
 		
 		IssueModel issue = createNonFailingIssue();
 		
-		FailingIssueListener failingIssueVisitor = parseIssue(
+		parseIssue(
 				configMock, issue);
 		
 		Assert.assertTrue("Should get here",true);

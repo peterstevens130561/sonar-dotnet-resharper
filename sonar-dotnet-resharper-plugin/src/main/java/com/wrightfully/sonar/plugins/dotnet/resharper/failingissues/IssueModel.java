@@ -38,7 +38,6 @@ public class IssueModel {
 	}
 	
 	public IssueModel() {
-		// TODO Auto-generated constructor stub
 	}
 	public final String getMessage() {
 		return message;

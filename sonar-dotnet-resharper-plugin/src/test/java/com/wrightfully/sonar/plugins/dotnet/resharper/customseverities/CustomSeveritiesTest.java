@@ -179,7 +179,7 @@ public class CustomSeveritiesTest {
 		rule.setSeverity(RulePriority.INFO);
 		ActiveRule activeRule = new ActiveRule(null,rule,null);
 
-        CustomSeveritiesMap map = testParse(customList);
+        testParse(customList);
 		customSeverities.assignCustomSeverity(activeRule);
 		Assert.assertEquals(RulePriority.INFO, activeRule.getSeverity());
 	}
@@ -192,7 +192,7 @@ public class CustomSeveritiesTest {
 		Rule rule = createRule();
 		ActiveRule activeRule = new ActiveRule(null,rule,null);
 
-        CustomSeveritiesMap map = testParse(customList);
+        testParse(customList);
 		customSeverities.assignCustomSeverity(activeRule);
 		Assert.assertEquals(RulePriority.BLOCKER, activeRule.getSeverity());
 	}
@@ -229,7 +229,8 @@ public class CustomSeveritiesTest {
 	}
 	
 
-	private ActiveRule createActiveRule() {
+	@SuppressWarnings("deprecation")
+    private ActiveRule createActiveRule() {
 	    ActiveRule activeRule = new ActiveRule();
 	    activeRule.setRule(createRule());
 	    return activeRule;

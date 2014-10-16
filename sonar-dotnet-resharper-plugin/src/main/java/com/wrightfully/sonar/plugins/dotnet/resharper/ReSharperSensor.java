@@ -20,20 +20,23 @@
 package com.wrightfully.sonar.plugins.dotnet.resharper;
 
 import com.google.common.base.Joiner;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.DependsUpon;
 import org.sonar.api.batch.SensorContext;
+import org.sonar.api.config.Settings;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.ProjectFileSystem;
 import org.sonar.api.utils.SonarException;
+
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperCommandBuilder;
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperRunner;
 import com.wrightfully.sonar.plugins.dotnet.resharper.profiles.ReSharperProfileExporter;
-import com.wrightfully.sonar.plugins.dotnet.resharper.ReSharperConfiguration;
+
 import org.sonar.plugins.dotnet.api.DotNetConfiguration;
 import org.sonar.plugins.dotnet.api.DotNetConstants;
 import org.sonar.plugins.dotnet.api.microsoft.MicrosoftWindowsEnvironment;
@@ -43,8 +46,10 @@ import org.sonar.plugins.dotnet.api.sensor.AbstractRuleBasedDotNetSensor;
 import org.sonar.plugins.dotnet.api.utils.FileFinder;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Collects the ReSharper reporting into sonar.
@@ -54,9 +59,7 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
     private static final Logger LOG = LoggerFactory.getLogger(ReSharperSensor.class);
 
     private ProjectFileSystem fileSystem;
-    private RulesProfile rulesProfile;
     private ReSharperResultParser resharperResultParser;
-    private ReSharperConfiguration resharperConfiguration;
 
     @DependsUpon(DotNetConstants.CORE_PLUGIN_EXECUTED)
     public static class CSharpRegularReSharperSensor extends ReSharperSensor {
@@ -98,7 +101,6 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
                               ReSharperResultParser resharperResultParser, DotNetConfiguration configuration, MicrosoftWindowsEnvironment microsoftWindowsEnvironment) {
         super(configuration, rulesProfile, profileExporter, microsoftWindowsEnvironment, "ReSharper", configuration.getString(ReSharperConstants.MODE));
         this.fileSystem = fileSystem;
-        this.rulesProfile = rulesProfile;
         this.resharperResultParser = resharperResultParser;
 
     }
@@ -164,9 +166,8 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
             ReSharperRunner runner = ReSharperRunner.create(configuration.getString(ReSharperConstants.INSTALL_DIR_KEY));
             VisualStudioSolution vsSolution = getVSSolution();
             VisualStudioProject vsProject = getVSProject(project);
-
-            ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject);
-            builder.addArgument("/properties:",configuration.getString(ReSharperConstants.INSPECTCODE_PROPERTIES));
+            List<String> properties = getProperties();
+            ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject,properties);
             reportFile= new File(fileSystem.getSonarWorkingDirectory(), ReSharperConstants.REPORT_FILENAME);
             builder.setReportFile(reportFile);
             int timeout = configuration.getInt(ReSharperConstants.TIMEOUT_MINUTES_KEY);
@@ -177,6 +178,21 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
         Collection<File> reportFiles = Collections.singleton(reportFile);
         return reportFiles;
     }
+
+	private List<String> getProperties() {
+		List<String> properties = new ArrayList<String>();
+		addPropertyIfDefined(properties, "Platform","sonar.dotnet.buildPlatform");
+		addPropertyIfDefined(properties, "Configuration","sonar.dotnet.buildConfiguration");
+		return properties;
+	}
+
+	private void addPropertyIfDefined(List<String> properties, String msBuildPropertyName,String sonarPropertyName) {
+		String value=configuration.getString(sonarPropertyName);
+		if(!StringUtils.isEmpty(value)) {
+			value=value.replace(" ", "");
+			properties.add(msBuildPropertyName + "=" + value);
+		}
+	}
 
     private void analyseResults(File reportFile) throws SonarException {
         if (reportFile.exists()) {

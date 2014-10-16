@@ -19,15 +19,17 @@
  */
 package com.wrightfully.sonar.dotnet.tools.resharper;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.command.Command;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioProject;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
-import org.sonatype.aether.util.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Class used to build the command line to run ReSharper inspectcoe.
@@ -43,6 +45,8 @@ public final class ReSharperCommandBuilder {
     private VisualStudioSolution solution;
     private VisualStudioProject vsProject;
 
+	private List<String> properties;
+
   private ReSharperCommandBuilder() {
   }
 
@@ -52,13 +56,15 @@ public final class ReSharperCommandBuilder {
    *          the current VS solution
    * @param project
    *          the VS project to analyze
+ * @param settings 
    *
    * @return a ReSharper builder for this project
    */
-  public static ReSharperCommandBuilder createBuilder(VisualStudioSolution solution, VisualStudioProject project) {
+  public static ReSharperCommandBuilder createBuilder(VisualStudioSolution solution, VisualStudioProject project, List<String> properties) {
     ReSharperCommandBuilder builder = new ReSharperCommandBuilder();
     builder.solution = solution;
     builder.vsProject = project;
+    builder.properties=properties;
     return builder;
   }
 
@@ -126,11 +132,25 @@ public final class ReSharperCommandBuilder {
         command.addArgument(argument);
     }
     
+    addPropertiesIfSet(command);
     command.addArgument(solution.getSolutionFile().getAbsolutePath());
 
 
     return command;
   }
+
+	private void addPropertiesIfSet(Command command) {
+		if(properties != null && properties.size()>0) {
+			StringBuilder sb = new StringBuilder();
+			for(String property:properties) {
+				sb.append(property).append(";");
+			}
+			String dirtyArgument =sb.toString();
+			String argument=dirtyArgument.substring(0,dirtyArgument.length()-1);
+			LOG.debug("- Properties                 : " + argument);
+			command.addArgument("/properties:" + argument);
+		}
+	}
 
   /**
    *  if value is not empty, the concatenation of name & value are added to the arguments

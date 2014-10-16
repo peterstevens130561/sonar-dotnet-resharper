@@ -19,9 +19,6 @@
  */
 package com.wrightfully.sonar.plugins.dotnet.resharper;
 
-
-import java.io.Reader;
-
 import java.io.StringReader;
 
 import javax.xml.namespace.NamespaceContext;
@@ -38,7 +35,7 @@ import org.sonar.api.Extension;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
-import org.sonar.api.config.Settings;
+
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.RulePriority;
 import org.w3c.dom.NamedNodeMap;
@@ -114,7 +111,7 @@ public class CustomSeverities implements Extension {
         NamedNodeMap attributeMap=node.getAttributes();
         Node keyAttribute=attributeMap.getNamedItem("x:Key");
         String value=keyAttribute.getNodeValue();
-        String values[]=value.split("[/=]");
+        String[] values=value.split("[/=]");
         if(values.length !=8 && values.length !=9) {
         	throw new ReSharperException("Invalid key, does not contain 8 or 9 segments seperated by / " + value + 
         			"\ncontains " + values.length + " elements" );

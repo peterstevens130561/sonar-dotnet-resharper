@@ -100,6 +100,7 @@ public class CustomSeveritiesIntegrationTest {
         RuleFinder finder = mock(RuleFinder.class);
         when(finder.find((RuleQuery) org.mockito.Matchers.anyObject())).thenReturn(null);
         ReSharperProfileImporter.CSharpRegularReSharperProfileImporter profileImporter = mock(ReSharperProfileImporter.CSharpRegularReSharperProfileImporter.class);
+        @SuppressWarnings("deprecation")
         RulesProfile profile = new RulesProfile();
         when(profileImporter.importProfile(any(Reader.class),any(ValidationMessages.class))).thenReturn(profile);
         return profileImporter;
@@ -229,6 +230,7 @@ public class CustomSeveritiesIntegrationTest {
          * As all rules are added in the repository part, we can just return a rule
          */
         public Rule find(RuleQuery query) {
+            @SuppressWarnings("deprecation")
             Rule rule = new Rule() ;
             rule.setKey(query.getKey());
             return rule;

@@ -23,14 +23,9 @@ package com.wrightfully.sonar.plugins.dotnet.resharper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.PropertyType;
 import org.sonar.api.utils.SonarException;
-
 import com.wrightfully.sonar.plugins.dotnet.resharper.failingissues.IssueListener;
 import com.wrightfully.sonar.plugins.dotnet.resharper.failingissues.IssueModel;
 
@@ -78,7 +73,7 @@ public class FailingIssueListener implements IssueListener {
 	 * @return at least one issue found
 	 */
 	public Boolean hasMatches() {
-		return issues.size() > 0;
+		return !issues.isEmpty();
 	}
 	/**
 	 * @return number of issues found

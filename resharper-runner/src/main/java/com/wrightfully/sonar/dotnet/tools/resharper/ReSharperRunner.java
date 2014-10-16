@@ -21,12 +21,13 @@ package com.wrightfully.sonar.dotnet.tools.resharper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.command.CommandExecutor;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioProject;
 import org.sonar.plugins.dotnet.api.microsoft.VisualStudioSolution;
-import org.sonatype.aether.util.StringUtils;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * Class that runs the ReSharper inspectcode program.
@@ -64,8 +65,8 @@ public final class ReSharperRunner {
    * 
    * @return the command to complete.
    */
-  public ReSharperCommandBuilder createCommandBuilder(VisualStudioSolution solution, VisualStudioProject project) {
-    ReSharperCommandBuilder builder = ReSharperCommandBuilder.createBuilder(solution, project);
+  public ReSharperCommandBuilder createCommandBuilder(VisualStudioSolution solution, VisualStudioProject project,List<String> properties) {
+    ReSharperCommandBuilder builder = ReSharperCommandBuilder.createBuilder(solution, project,properties);
     builder.setExecutable(resharperExecutable);
     return builder;
   }
