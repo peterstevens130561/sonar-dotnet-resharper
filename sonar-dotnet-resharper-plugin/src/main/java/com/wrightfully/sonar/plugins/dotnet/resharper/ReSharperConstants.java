@@ -56,4 +56,5 @@ public final class ReSharperConstants {
 	public static final String CUSTOM_SEVERITIES_PATH = "sonar.resharper.customSeverities.path";
 	public static final String INSPECTCODE_PROPERTIES = "sonar.resharper.inspectcode.properties" ;
     public static final String PROFILE_DEFAULT="Sonar way";
+    public static final String CACHES_HOME = "sonar.resharper.inspectcode.cacheshome";
 }
