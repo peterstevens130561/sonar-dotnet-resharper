@@ -21,8 +21,11 @@ package com.wrightfully.sonar.plugins.dotnet.resharper;
 
 import java.io.File;
 
-import junit.framework.Assert;
 
+
+
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.plugins.dotnet.api.DotNetConfiguration;
@@ -33,6 +36,7 @@ import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperCommandBuilder;
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperException;
 import com.wrightfully.sonar.dotnet.tools.resharper.ReSharperRunner;
 
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -67,7 +71,7 @@ public class ResSharperRunnerTest {
         String commandLine=command.toCommandLine();
         
         String expectedSolutionPath = solutionFile.getAbsolutePath().replaceAll("/", "\\\\");       
-        Assert.assertTrue(commandLine.endsWith(" " + expectedSolutionPath));
+        assertTrue(commandLine.endsWith(" " + expectedSolutionPath));
     }
     
     @Test

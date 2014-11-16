@@ -170,10 +170,13 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
             ReSharperCommandBuilder builder = runner.createCommandBuilder(vsSolution, vsProject,properties);
             reportFile= new File(fileSystem.getSonarWorkingDirectory(), ReSharperConstants.REPORT_FILENAME);
             builder.setReportFile(reportFile);
+            
             String cachesHome=configuration.getString(ReSharperConstants.CACHES_HOME);
-            if(StringUtils.isNotEmpty(cachesHome)) {
-            	builder.setCachesHome(cachesHome);
-            }
+            builder.setCachesHome(cachesHome);
+            
+            String profile=configuration.getString(ReSharperConstants.INSPECTCODE_PROFILE);
+            builder.setProfile(profile);
+            
             int timeout = configuration.getInt(ReSharperConstants.TIMEOUT_MINUTES_KEY);
             runner.execute(builder, timeout);
         } catch (ReSharperException e) {

@@ -57,4 +57,5 @@ public final class ReSharperConstants {
 	public static final String INSPECTCODE_PROPERTIES = "sonar.resharper.inspectcode.properties" ;
     public static final String PROFILE_DEFAULT="Sonar way";
     public static final String CACHES_HOME = "sonar.resharper.inspectcode.cacheshome";
+    public static final String INSPECTCODE_PROFILE = "sonar.resharper.inspectcode.profile";
 }
