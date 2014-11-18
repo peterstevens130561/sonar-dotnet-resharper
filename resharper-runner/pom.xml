@@ -6,7 +6,7 @@
   <parent>
     <groupId>org.codehaus.sonar-plugins</groupId>
     <artifactId>sonar-dotnet-resharper</artifactId>
-    <version>1.4-SNAPSHOT</version>
+    <version>1.5</version>
     <relativePath>..</relativePath>
   </parent>
 
