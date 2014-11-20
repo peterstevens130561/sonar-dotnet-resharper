@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>sonar-dotnet-resharper</artifactId>
-  <version>1.5</version>
+  <version>1.6-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Sonar .NET ReSharper</name>
