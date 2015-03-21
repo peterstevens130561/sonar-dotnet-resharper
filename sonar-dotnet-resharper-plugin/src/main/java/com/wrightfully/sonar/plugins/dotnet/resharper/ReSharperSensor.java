@@ -171,6 +171,8 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
             reportFile= new File(fileSystem.getSonarWorkingDirectory(), ReSharperConstants.REPORT_FILENAME);
             builder.setReportFile(reportFile);
             
+            String additionalArguments = configuration.getString(ReSharperConstants.INSPECTCODE_PROPERTIES);
+            builder.setProperties(additionalArguments);
             String cachesHome=configuration.getString(ReSharperConstants.CACHES_HOME);
             builder.setCachesHome(cachesHome);
             
@@ -200,6 +202,8 @@ public abstract class ReSharperSensor extends AbstractRuleBasedDotNetSensor {
 			properties.add(msBuildPropertyName + "=" + value);
 		}
 	}
+	
+ 
 
     private void analyseResults(File reportFile) throws SonarException {
         if (reportFile.exists()) {

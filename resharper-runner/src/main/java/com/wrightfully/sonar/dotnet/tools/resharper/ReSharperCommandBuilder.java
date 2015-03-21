@@ -45,7 +45,8 @@ public final class ReSharperCommandBuilder {
 	private ArrayList<String> arguments = new ArrayList<String>();
 	private VisualStudioSolution solution;
 	private VisualStudioProject vsProject;
-	private List<String> properties;
+	private List<String> propertiesList;
+
 
 	private ReSharperCommandBuilder() {
 	}
@@ -68,7 +69,7 @@ public final class ReSharperCommandBuilder {
 		ReSharperCommandBuilder builder = new ReSharperCommandBuilder();
 		builder.solution = solution;
 		builder.vsProject = project;
-		builder.properties = properties;
+		builder.propertiesList = properties;
 		return builder;
 	}
 
@@ -149,14 +150,16 @@ public final class ReSharperCommandBuilder {
 	}
 
 	private void addPropertiesIfSet(Command command) {
-		if (properties != null && properties.size() > 0) {
+		if (propertiesList != null && propertiesList.size() > 0) {
 			StringBuilder sb = new StringBuilder();
-			for (String property : properties) {
+			for (String property : propertiesList) {
 				sb.append(property).append(";");
 			}
+			//removeTrailing ;
 			String dirtyArgument = sb.toString();
 			String argument = dirtyArgument.substring(0,
 					dirtyArgument.length() - 1);
+			
 			LOG.debug("- Properties                 : " + argument);
 			command.addArgument("/properties:" + argument);
 		}
@@ -187,5 +190,16 @@ public final class ReSharperCommandBuilder {
 		if(StringUtils.isEmpty(profile)) return;
 		arguments.add("/profile=" + profile);
 	}
+
+	/**
+	 * add additional msbuild properties
+	 * @param properties
+	 */
+	public void setProperties(String properties) {
+		if(!StringUtils.isEmpty(properties)) {
+			this.propertiesList.add(properties);
+		}
+	}
+
 
 }

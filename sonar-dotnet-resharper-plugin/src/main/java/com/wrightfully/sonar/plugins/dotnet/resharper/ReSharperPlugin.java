@@ -61,7 +61,7 @@ import java.util.List;
         @Property(key=ReSharperConstants.CUSTOM_SEVERITIES_PATH,name="Path to custom severities settings",
         description = "Absolute path to file with exported ReSharper settings: RESHARPER, Manage Options...,Import/Export Settiings, Export to file,CodeInspection",
         type=PropertyType.STRING,global=true,project=false),
-        @Property(key=ReSharperConstants.INSPECTCODE_PROPERTIES,name="properties argument for inspectcode",type=PropertyType.STRING,global=false,project=true),
+        @Property(key=ReSharperConstants.INSPECTCODE_PROPERTIES,name="properties argument for inspectcode",type=PropertyType.STRING,global=true,project=true),
         @Property(key=ReSharperConstants.CACHES_HOME,name="caches home",type=PropertyType.STRING,global=false,project=true),
         @Property(key=ReSharperConstants.INSPECTCODE_PROFILE,name="path to .DotSettings file",type=PropertyType.STRING,global=false,project=true)
 })

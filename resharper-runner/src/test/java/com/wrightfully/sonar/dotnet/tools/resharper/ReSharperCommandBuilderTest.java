@@ -80,6 +80,20 @@ public class ReSharperCommandBuilderTest {
 		assertTrue(command,command.contains("/caches-home="+caches));
 	}
 
+	@Test
+	public void propertiesSet_InProperties() throws ReSharperException {
+		String properties="funny\";some more;\"";
+		classUnderTest.setProperties(properties);
+		String command=classUnderTest.toCommand().toString();
+		assertTrue(command,command.contains("/properties:" + properties));
+	}
+	
+	@Test
+	public void propertiesNotSet_NotInProperties() throws ReSharperException {
+		classUnderTest.setProperties("");
+		String command=classUnderTest.toCommand().toString();
+		assertFalse(command,command.contains("/properties:"));
+	}
 	private ReSharperCommandBuilder initBuilder() {
 		when(solution.getSolutionFile()).thenReturn(solutionFile);
 		VisualStudioProject project = mock(VisualStudioProject.class);
